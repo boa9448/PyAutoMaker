@@ -23,10 +23,8 @@ class TeachableUtil:
         image_array = cv2.resize(image_array, (224, 224))
         normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
 
-        # Load the image into the array
         self.data[0] = normalized_image_array
 
-        # run the inference
         prediction = self.model.predict(self.data)
         ret = np.argmax(prediction)
         
