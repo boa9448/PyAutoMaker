@@ -1,6 +1,7 @@
-from ctypes import POINTER, Structure, c_byte, c_short, c_ushort
+import time
+from ctypes import POINTER, Structure, Union, byref, c_byte, c_short, c_ushort, memmove, pointer, sizeof, cast
 
-import Serial
+from serial import Serial
 
 from input_abs import AbsInput
 
@@ -24,21 +25,21 @@ class MouseMoveData(Structure):
                 , ("y", c_short)]
 
 
-class InputPacket(Structure):
-    _pack_ = 1
-    _fields_ = [("start_sign", c_byte)
-                , ("data_type", c_byte)
-                , ("data_size", c_ushort)
-                , ("data_pointer", POINTER(c_byte))
-                , ("end_sign", c_byte)]
-
-
 class ArduinoUtil(AbsInput):
+    START_SIGN = c_byte(ord('#'))
+    DATA_TYPE = {KeyData : c_byte(1), MouseButtonData : c_byte(2), MouseMoveData : c_byte(3)}
+
     def __init__(self, port : str, baudrate : int):
+        #self.serial = Serial(port = port, baudrate = baudrate)
         pass
 
     def __del__(self):
+        #self.serial.close()
         pass
+
+    def make_packet(self, data : KeyData or MouseButtonData or MouseMoveData) -> bytes:
+        packet = bytes(self.START_SIGN) + bytes(self.DATA_TYPE[type(data)]) + bytes(data)
+        return packet
 
     def key(self, key_code : int, key_status : int) -> bool:
         pass
@@ -48,3 +49,10 @@ class ArduinoUtil(AbsInput):
 
     def btn(self, button_code : int , button_status : int) -> bool:
         pass
+
+
+if __name__ == "__main__":
+    arduino = ArduinoUtil("COM4", 9500)
+    packet = arduino.make_packet(KeyData(1, 2))
+    print(bytes(packet))
+    
