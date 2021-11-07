@@ -10,6 +10,7 @@ os.environ["DLL_FOLDER"] = os.path.join(rootDir, "dlls")
 os.environ["DNN_DATA_FOLDER"] = os.path.join(rootDir, "models")
 os.environ["IMG_DATA_FOLDER"] = os.path.join(rootDir, "imgs")
 
+from .arduino import *
 from .darknet import *
 from .dd import *
 from .image import *
