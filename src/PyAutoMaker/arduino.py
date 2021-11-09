@@ -44,6 +44,9 @@ class ArduinoUtil(AbsInput):
     def key(self, key_code : int, key_status : int) -> bool:
         pass
 
+    def press(self, key_code : int, key_status : int) -> bool:
+        pass
+
     def move(self, mode : int, x : int , y : int) -> bool:
         pass
 
