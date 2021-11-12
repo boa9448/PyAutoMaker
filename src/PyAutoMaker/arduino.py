@@ -1,5 +1,5 @@
 import time
-from ctypes import POINTER, Structure, Union, byref, c_byte, c_short, c_ushort, memmove, pointer, sizeof, cast
+from ctypes import Structure, c_byte, c_short
 
 from serial import Serial
 
@@ -30,12 +30,10 @@ class ArduinoUtil(AbsInput):
     DATA_TYPE = {KeyData : c_byte(1), MouseButtonData : c_byte(2), MouseMoveData : c_byte(3)}
 
     def __init__(self, port : str, baudrate : int):
-        #self.serial = Serial(port = port, baudrate = baudrate)
-        pass
+        self.serial = Serial(port = port, baudrate = baudrate)
 
     def __del__(self):
-        #self.serial.close()
-        pass
+        self.serial.close()
 
     def make_packet(self, data : KeyData or MouseButtonData or MouseMoveData) -> bytes:
         packet = bytes(self.START_SIGN) + bytes(self.DATA_TYPE[type(data)]) + bytes(data)
