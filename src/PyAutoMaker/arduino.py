@@ -1,9 +1,23 @@
 import time
-from ctypes import POINTER, Structure, Union, byref, c_byte, c_short, c_ushort, memmove, pointer, sizeof, cast
+from ctypes import Structure, c_byte, c_ubyte, c_uint16
 
 from serial import Serial
 
 from input_abs import AbsInput
+
+
+CMD_START_SIGN = c_byte(ord('#'))
+CMD_OPCODE_KEY_DATA = 1
+CMD_OPCODE_MOUSE_BUTTON = 2
+CMD_OPCODE_MOUSE_MOVE = 3
+
+KEY_DATA_STATUS_PRESS = 1
+KEY_DATA_STATUS_RELEASE = 2
+
+class CmdHeader(Structure):
+    _pack_ = 1
+    _fields_ = [("start_sign", c_ubyte)
+                , ("opcode", c_uint16)]
 
 class KeyData(Structure):
     _pack_ = 1
@@ -19,33 +33,30 @@ class MouseButtonData(Structure):
 
 class MouseMoveData(Structure):
     _pack_ = 1
-    _fields_ = [("move_type", c_byte)
-                ,("move_mode", c_byte)
-                , ("x", c_short)
-                , ("y", c_short)]
+    _fields_ = [("relative", c_byte)
+                , ("x", c_byte)
+                , ("y", c_byte)]
 
 
 class ArduinoUtil(AbsInput):
-    START_SIGN = c_byte(ord('#'))
-    DATA_TYPE = {KeyData : c_byte(1), MouseButtonData : c_byte(2), MouseMoveData : c_byte(3)}
-
     def __init__(self, port : str, baudrate : int):
-        #self.serial = Serial(port = port, baudrate = baudrate)
-        pass
+        self.serial = Serial(port = port, baudrate = baudrate)
 
     def __del__(self):
-        #self.serial.close()
-        pass
+        self.serial.close()
 
-    def make_packet(self, data : KeyData or MouseButtonData or MouseMoveData) -> bytes:
-        packet = bytes(self.START_SIGN) + bytes(self.DATA_TYPE[type(data)]) + bytes(data)
-        return packet
+    def key(self, key_code : int, key_status : int):
+        header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_KEY_DATA)
+        data = KeyData(key_code, key_status)
 
-    def key(self, key_code : int, key_status : int) -> bool:
-        pass
+        data = bytes(header) + bytes(data)
+        self.serial.write(data)
 
-    def press(self, key_code : int, key_status : int) -> bool:
-        pass
+    def key_press(self, key_code : int):
+        return self.key(key_code, KEY_DATA_STATUS_PRESS)
+
+    def key_release(self, key_code : int):
+        return self.key(key_code, KEY_DATA_STATUS_RELEASE)
 
     def move(self, mode : int, x : int , y : int) -> bool:
         pass
