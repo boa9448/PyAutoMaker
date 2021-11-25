@@ -6,7 +6,7 @@ class AbsInput(metaclass = ABCMeta):
         pass
 
     @abstractmethod
-    def move(self, mode : int, x : int , y : int):
+    def move(self, x : int , y : int, relative : bool):
         pass
 
     @abstractmethod

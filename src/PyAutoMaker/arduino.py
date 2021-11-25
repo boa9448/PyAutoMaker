@@ -1,6 +1,7 @@
 import time
 from ctypes import Structure, c_byte, c_ubyte, c_uint16
 
+from win32api import GetCursorPos
 from serial import Serial
 
 from input_abs import AbsInput
@@ -33,8 +34,7 @@ class MouseButtonData(Structure):
 
 class MouseMoveData(Structure):
     _pack_ = 1
-    _fields_ = [("relative", c_byte)
-                , ("x", c_byte)
+    _fields_ = [("x", c_byte)
                 , ("y", c_byte)]
 
 
@@ -58,8 +58,16 @@ class ArduinoUtil(AbsInput):
     def key_release(self, key_code : int):
         return self.key(key_code, KEY_DATA_STATUS_RELEASE)
 
-    def move(self, mode : int, x : int , y : int) -> bool:
-        pass
+    def move(self, x : int , y : int, relative : bool) -> bool:
+        header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_MOUSE_MOVE)
+        cur_x, cur_y = GetCursorPos()
+        diff_x, diff_y = cur_x - x, cur_y - y
+        if relative:
+            pass
+        else:
+            pass
+
+        self.serial.write(data)
 
     def btn(self, button_code : int , button_status : int) -> bool:
         pass
