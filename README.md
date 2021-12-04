@@ -46,7 +46,7 @@ ClassDD를 이용한 키보드, 마우스 입력
 
 arduino leonardo를 이용한 키보드, 마우스 입력
 
-        #포트 찾아서 인두이노 펌웨어 자동 업로드
+    #포트 찾아서 인두이노 펌웨어 자동 업로드
     upload(get_port_list(), "D:\\Program Files (x86)\\Arduino")
 
     #아두이노와 시리얼 통신 시작
