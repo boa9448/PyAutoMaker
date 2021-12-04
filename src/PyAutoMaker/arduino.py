@@ -91,6 +91,12 @@ class ArduinoUtil(AbsInput):
         data = bytes(header) + bytes(data)
         self.serial.write(data)
 
+    @log
+    def string(self, s : str):
+        for c in s:
+            self.key(ord(c))
+            time.sleep(0.03)
+
     def make_move_data(self, x : int , y : int, relative : bool) -> bytes:
         header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_MOUSE_MOVE)
         cur_x, cur_y = GetCursorPos()
@@ -154,3 +160,5 @@ if __name__ == "__main__":
     arduino.move(100, 100, True)
     time.sleep(1)
     print(GetCursorPos())
+
+    arduino.string("abcde")
