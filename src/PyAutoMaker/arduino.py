@@ -94,7 +94,6 @@ class ArduinoUtil(AbsInput):
     def make_move_data(self, x : int , y : int, relative : bool) -> bytes:
         header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_MOUSE_MOVE)
         cur_x, cur_y = GetCursorPos()
-        print("now : ", cur_x, cur_y)
 
         if relative:
             x += cur_x
@@ -150,6 +149,8 @@ if __name__ == "__main__":
     arduino.key(ord('B'))
     arduino.btn(BUTTON_LEFT, BUTTON_STATUS_PRESS)
     arduino.btn(BUTTON_LEFT, BUTTON_STATUS_RELEASE)
+
+    print("now : ", GetCursorPos())
     arduino.move(100, 100, True)
     time.sleep(1)
     print(GetCursorPos())
