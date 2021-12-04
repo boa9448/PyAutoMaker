@@ -87,7 +87,8 @@ void loop()
             
         #ifdef DEBUG_MODE
             sprintf(szTemp, "key_code : %d, key_status : %d", recvKeyData.key_code, recvKeyData.key_status);
-            Serial.println(szTemp);
+            Serial.write(strlen(szTemp));
+            Serial.print(szTemp);
         #endif
         }
         else if(header.opcode == CMD_OPCODE_MOUSE_BUTTON)
@@ -98,17 +99,20 @@ void loop()
             
         #ifdef DEBUG_MODE
             sprintf(szTemp, "button_code : %d, button_status : %d", recvMouseButtonData.button_code, recvMouseButtonData.button_status);
-            Serial.println(szTemp);
+            Serial.write(strlen(szTemp));
+            Serial.print(szTemp);
         #endif
         }
         else if(header.opcode == CMD_OPCODE_MOUSE_MOVE)
         {
             Serial.readBytes((char*)&recvMouseMoveData, sizeof(recvMouseMoveData));
             Mouse.move(recvMouseMoveData.x, recvMouseMoveData.y, 0);
+            //Mouse.move(100, 100, 0);
             
         #ifdef DEBUG_MODE
             sprintf(szTemp, "x : %d, y : %d", recvMouseMoveData.x, recvMouseMoveData.y);
-            Serial.println(szTemp);
+            Serial.write(strlen(szTemp));
+            Serial.print(szTemp);
         #endif
         }
     }

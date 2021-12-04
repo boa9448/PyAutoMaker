@@ -51,7 +51,7 @@ def upload(port : str) -> bool:
     return True if ret_code == 0 else False
 
 class ArduinoUtil(AbsInput):
-    MOVE_STEP = c_ubyte(-1).value // 2
+    MOVE_STEP = 100
 
     def __init__(self, port : str, baudrate : int):
         self.serial = Serial(port = port, baudrate = baudrate)
@@ -63,38 +63,39 @@ class ArduinoUtil(AbsInput):
         def wrapper(*args, **kwargs):
             func(*args, **kwargs)
             arduino = args[0]
-            data = arduino.serial.read_all()
-            print(data)
+            #data_len = arduino.serial.read(1)
+            #data_len = int.from_bytes(data_len, "little")
+            #data = arduino.serial.read(data_len)
+            #print(data)
 
         return wrapper
 
     @log
-    def key(self, key_code : int) -> int:
-        write_count = self.key_press(key_code)
-        write_count += self.key_release(key_code)
-
-        return write_count
+    def key(self, key_code : int):
+        self.key_press(key_code)
+        self.key_release(key_code)
 
     @log
-    def key_press(self, key_code : int) -> int:
+    def key_press(self, key_code : int):
         header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_KEY_DATA)
         data = KeyData(arduino_key_map.get(key_code, key_code), KEY_PRESS)
 
         data = bytes(header) + bytes(data)
-        return self.serial.write(data)
+        self.serial.write(data)
 
     @log
-    def key_release(self, key_code : int) -> int:
+    def key_release(self, key_code : int):
         header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_KEY_DATA)
         data = KeyData(arduino_key_map.get(key_code, key_code), KEY_RELEASE)
 
         data = bytes(header) + bytes(data)
-        return self.serial.write(data)
+        self.serial.write(data)
 
     def make_move_data(self, x : int , y : int, relative : bool) -> bytes:
         header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_MOUSE_MOVE)
         cur_x, cur_y = GetCursorPos()
-        
+        print("now : ", cur_x, cur_y)
+
         if relative:
             x += cur_x
             y += cur_y
@@ -128,29 +129,27 @@ class ArduinoUtil(AbsInput):
 
 
     @log
-    def move(self, x : int , y : int, relative : bool) -> int:
+    def move(self, x : int , y : int, relative : bool):
         data = self.make_move_data(x, y, relative)
-        return self.serial.write(data)
+        self.serial.write(data)
 
     @log
-    def btn(self, button_code : int , button_status : int) -> int:
+    def btn(self, button_code : int , button_status : int):
         header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_MOUSE_BUTTON)
         data = MouseButtonData(button_code, button_status)
 
-        return self.serial.write(bytes(header) + bytes(data))
+        self.serial.write(bytes(header) + bytes(data))
 
 
 if __name__ == "__main__":
-    #upload(get_port_list())
+    upload(get_port_list()) #포트 찾아서 펌웨어 자동 업로드
     arduino = ArduinoUtil(get_port_list(), 9600)
     time.sleep(2)
-    
-    arduino.key(65)
-    arduino.key(65)
+
+    arduino.key(ord('A'))
+    arduino.key(ord('B'))
     arduino.btn(BUTTON_LEFT, BUTTON_STATUS_PRESS)
     arduino.btn(BUTTON_LEFT, BUTTON_STATUS_RELEASE)
-    arduino.move(100, 100, False)
-    print("wait...")
+    arduino.move(100, 100, True)
     time.sleep(1)
-    data = arduino.serial.read_all()
-    print(data)
+    print(GetCursorPos())
