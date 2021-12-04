@@ -1,6 +1,28 @@
-from ctypes import c_ubyte
+from ctypes import c_byte, c_ubyte, Structure, c_uint16
 
 import win32con
+
+class CmdHeader(Structure):
+    _pack_ = 1
+    _fields_ = [("start_sign", c_ubyte)
+                , ("opcode", c_uint16)]
+
+class KeyData(Structure):
+    _pack_ = 1
+    _fields_ = [("key_code", c_ubyte)
+                , ("key_status", c_ubyte)]
+
+
+class MouseButtonData(Structure):
+    _pack_ = 1
+    _fields_ = [("button_code", c_ubyte)
+                , ("button_status", c_ubyte)]
+
+
+class MouseMoveData(Structure):
+    _pack_ = 1
+    _fields_ = [("x", c_byte)
+                , ("y", c_byte)]
 
 CMD_START_SIGN = c_ubyte(ord('#'))
 CMD_OPCODE_KEY_DATA = 1

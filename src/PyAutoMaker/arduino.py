@@ -9,30 +9,6 @@ from serial.tools import list_ports
 from input_abs import AbsInput
 from arduino_define import *
 
-class CmdHeader(Structure):
-    _pack_ = 1
-    _fields_ = [("start_sign", c_ubyte)
-                , ("opcode", c_uint16)]
-
-class KeyData(Structure):
-    _pack_ = 1
-    _fields_ = [("key_code", c_ubyte)
-                , ("key_status", c_ubyte)]
-
-
-class MouseButtonData(Structure):
-    _pack_ = 1
-    _fields_ = [("button_code", c_ubyte)
-                , ("button_status", c_ubyte)]
-
-
-class MouseMoveData(Structure):
-    _pack_ = 1
-    _fields_ = [("x", c_byte)
-                , ("y", c_byte)]
-
-
-
 def get_port_list(name = "USB 직렬 장치") -> str or None:
     port_list = list_ports.comports()
     for port in port_list:
