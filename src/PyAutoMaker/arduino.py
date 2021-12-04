@@ -41,8 +41,8 @@ def get_port_list(name = "USB 직렬 장치") -> str or None:
 
     return None
 
-def upload(port : str) -> bool:
-    os.environ["path"] = os.pathsep.join([os.environ["path"], "D:\\Program Files (x86)\\Arduino"])
+def upload(port : str, arduino_dir : str = "C:\\Program Files (x86)\\Arduino") -> bool:
+    os.environ["path"] = os.pathsep.join([os.environ["path"], arduino_dir])
     cur_dir = os.path.dirname(__file__)
     src_path = os.path.abspath(os.path.join(cur_dir, "arduino_keyboard_src", "arduino_keyboard_src.ino"))
     upload_command = f"arduino_debug.exe --board arduino:avr:leonardo --port {port} --upload {src_path}"
@@ -147,18 +147,26 @@ class ArduinoUtil(AbsInput):
 
 
 if __name__ == "__main__":
-    upload(get_port_list()) #포트 찾아서 펌웨어 자동 업로드
+    #포트 찾아서 인두이노 펌웨어 자동 업로드
+    #upload(get_port_list(), "D:\\Program Files (x86)\\Arduino")
+
+    #아두이노와 시리얼 통신 시작
     arduino = ArduinoUtil(get_port_list(), 9600)
     time.sleep(2)
 
-    arduino.key(ord('A'))
-    arduino.key(ord('B'))
-    arduino.btn(BUTTON_LEFT, BUTTON_STATUS_PRESS)
-    arduino.btn(BUTTON_LEFT, BUTTON_STATUS_RELEASE)
+    arduino.key(ord('A')) #A입력
+    arduino.key(ord('B')) #B입력
+    arduino.btn(BUTTON_LEFT, BUTTON_STATUS_PRESS)  #마우스 왼쪽 누르고 있음
+    arduino.btn(BUTTON_LEFT, BUTTON_STATUS_RELEASE)#마우스 왼쪽 땜
 
     print("now : ", GetCursorPos())
-    arduino.move(100, 100, True)
+    arduino.move(100, 100, True) #현재 좌표에서 100, 100만큼 이동
     time.sleep(1)
     print(GetCursorPos())
 
-    arduino.string("abcde")
+    print("now : ", GetCursorPos())
+    arduino.move(100, 100, False) #절대 좌표 100, 100으로 이동
+    time.sleep(1)
+    print(GetCursorPos())
+
+    arduino.string("abcde") #문자열 abcde 입력
