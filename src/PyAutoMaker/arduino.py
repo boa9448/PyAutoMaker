@@ -41,14 +41,14 @@ class ArduinoUtil(AbsInput):
 
     def key_press(self, key_code : int):
         header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_KEY_DATA)
-        data = KeyData(arduino_key_map.get(key_code, key_code), KEY_PRESS)
+        data = KeyData(arduino_key_map.get(key_code, key_code), ARDUINO_KEY_PRESS)
 
         data = bytes(header) + bytes(data)
         self.serial.write(data)
 
     def key_release(self, key_code : int):
         header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_KEY_DATA)
-        data = KeyData(arduino_key_map.get(key_code, key_code), KEY_RELEASE)
+        data = KeyData(arduino_key_map.get(key_code, key_code), ARDUINO_KEY_RELEASE)
 
         data = bytes(header) + bytes(data)
         self.serial.write(data)
@@ -118,12 +118,12 @@ if __name__ == "__main__":
 
     arduino.string("abcde") #문자열 abcde 입력
 
-    arduino.btn(BUTTON_LEFT, BUTTON_STATUS_PRESS)  #마우스 왼쪽 누르고 있음
-    arduino.btn(BUTTON_LEFT, BUTTON_STATUS_RELEASE)#마우스 왼쪽 땜
+    arduino.btn(ARDUINO_BUTTON_LEFT, ARDUINO_BUTTON_STATUS_PRESS)  #마우스 왼쪽 누르고 있음
+    arduino.btn(ARDUINO_BUTTON_LEFT, ARDUINO_BUTTON_STATUS_RELEASE)#마우스 왼쪽 땜
 
-    arduino.btn(BUTTON_LEFT, BUTTON_STATUS_PRESS)  #마우스 왼쪽 누르고 있음
+    arduino.btn(ARDUINO_BUTTON_LEFT, ARDUINO_BUTTON_STATUS_PRESS)  #마우스 왼쪽 누르고 있음
     arduino.move(100, 100, True)
-    arduino.btn(BUTTON_LEFT, BUTTON_STATUS_RELEASE)#마우스 왼쪽 땜
+    arduino.btn(ARDUINO_BUTTON_LEFT, ARDUINO_BUTTON_STATUS_RELEASE)#마우스 왼쪽 땜
     time.sleep(30)
 
     print("pre : ", GetCursorPos())
