@@ -6,7 +6,7 @@ from win32api import GetCursorPos
 from serial import Serial
 from serial.tools import list_ports
 
-from input_abs import AbsInput
+from input_abs import *
 from arduino_define import *
 
 def get_port_list(name = "USB 직렬 장치") -> str or None:

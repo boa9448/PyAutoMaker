@@ -11,7 +11,7 @@ MOUSE_LUP = 2 #왼쪽 마우스 버튼 업
 MOUSE_RDOWN = 4 #오른쪽 다운
 MOUSE_RUP = 8 #오른쪽 업
 
-class DD(AbsInput):
+class DDUtil(AbsInput):
     #key, keyEx함수가 사용하는 키 상태 코드
     KEY_DOWN = KEY_DOWN #키다운
     KEY_UP = KEY_UP #키업
