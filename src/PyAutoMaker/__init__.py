@@ -12,6 +12,6 @@ os.environ["IMG_DATA_FOLDER"] = os.path.join(root_dir, "imgs")
 
 from .arduino import *
 from .darknet import *
-from .dd import *
+from .class_dd import *
 from .image import *
 #from .tensor import *
