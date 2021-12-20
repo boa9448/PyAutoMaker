@@ -1,9 +1,9 @@
 import env
-from PyAutoMaker import class_dd
+import PyAutoMaker as pam
 
-print(class_dd.KEY_LEFT_CTRL)
+print(pam.KEY_LEFT_CTRL)
 
-dd = class_dd.DDUtil()
+dd = pam.DDUtil()
 dd.move(0, 0, False)
 dd.key(ord('A'))
-dd.key(class_dd.KEY_LEFT_CTRL)
+dd.key(pam.KEY_LEFT_CTRL)
