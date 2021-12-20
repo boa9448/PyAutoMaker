@@ -104,35 +104,3 @@ class ArduinoUtil(AbsInput):
         data = MouseButtonData(button_code, button_status)
 
         self.serial.write(bytes(header) + bytes(data))
-
-
-if __name__ == "__main__":
-    #포트 찾아서 인두이노 펌웨어 자동 업로드
-    upload(get_port_list()[0], "D:\\Program Files (x86)\\Arduino")
-
-    #아두이노와 시리얼 통신 시작
-    arduino = ArduinoUtil(get_port_list()[0], 9600)
-    time.sleep(2)
-
-    arduino.key(ord('A')) #A입력
-    arduino.key(ord('B')) #B입력
-
-    arduino.string("abcde") #문자열 abcde 입력
-
-    arduino.btn(ARDUINO_BUTTON_LEFT, ARDUINO_BUTTON_STATUS_PRESS)  #마우스 왼쪽 누르고 있음
-    arduino.btn(ARDUINO_BUTTON_LEFT, ARDUINO_BUTTON_STATUS_RELEASE)#마우스 왼쪽 땜
-
-    arduino.btn(ARDUINO_BUTTON_LEFT, ARDUINO_BUTTON_STATUS_PRESS)  #마우스 왼쪽 누르고 있음
-    arduino.move(100, 100, True)
-    arduino.btn(ARDUINO_BUTTON_LEFT, ARDUINO_BUTTON_STATUS_RELEASE)#마우스 왼쪽 땜
-    time.sleep(30)
-
-    print("pre : ", GetCursorPos())
-    arduino.move(100, 100, True) #현재 좌표에서 100, 100만큼 이동
-    time.sleep(1)
-    print("now : ", GetCursorPos())
-
-    print("pre : ", GetCursorPos())
-    arduino.move(100, 100, False) #절대 좌표 100, 100으로 이동
-    time.sleep(1)
-    print("now : ", GetCursorPos())
