@@ -32,6 +32,7 @@ class ArduinoUtil(AbsInput):
 
     def __init__(self, port : str, baudrate : int):
         self.serial = Serial(port = port, baudrate = baudrate)
+        time.sleep(2)
 
     def __del__(self):
         self.serial.close()
