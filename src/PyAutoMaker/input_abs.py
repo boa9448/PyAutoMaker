@@ -2,8 +2,8 @@ from abc import ABCMeta, abstractmethod
 
 import win32con
 
-KEY_PRESS = 1
-KEY_RELEASE = 2
+KEY_STATUS_PRESS = 1
+KEY_STATUS_RELEASE = 2
 
 BUTTON_LEFT = 1
 BUTTON_RIGHT = 2
