@@ -2,6 +2,7 @@ import os
 import time
 from ctypes import Structure, c_byte, c_ubyte, c_uint16
 
+from PySide6.QtWidgets import QApplication, QFileDialog, QMainWindow
 from win32api import GetCursorPos
 from serial import Serial
 from serial.tools import list_ports
@@ -18,11 +19,27 @@ def get_port_list(name = "USB 직렬 장치") -> list:
 
     return port_list
 
-def upload(port : str, arduino_dir : str = "C:\\Program Files (x86)\\Arduino") -> bool:
+def user_select_dir() -> str:
+    app = QApplication()
+    window = QFileDialog()
+    window.setFileMode(QFileDialog.Directory)
+    
+    select_folder = None
+    if window.exec():
+        select_folder = window.selectedFiles()[0]
+
+    return select_folder
+
+def upload(port : str, arduino_dir : str = "C:\\Program Files (x86)\\Arduino", use_debug : bool = False) -> bool:
+    arduino_bin = "arduino_debug.exe" if use_debug else "arduino.exe"
+    arduino_bin_full_path = os.path.join(arduino_dir, arduino_bin)
+    if not os.path.isfile(arduino_bin_full_path):
+        arduino_dir = user_select_dir()
+
     os.environ["path"] = os.pathsep.join([os.environ["path"], arduino_dir])
     cur_dir = os.path.dirname(__file__)
     src_path = os.path.abspath(os.path.join(cur_dir, "arduino_keyboard_src", "arduino_keyboard_src.ino"))
-    upload_command = f"arduino_debug.exe --board arduino:avr:leonardo --port {port} --upload {src_path}"
+    upload_command = f"{arduino_bin} --board arduino:avr:leonardo --port {port} --upload {src_path}"
 
     ret_code = os.system(upload_command)
     return True if ret_code == 0 else False
