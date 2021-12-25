@@ -35,11 +35,11 @@ def upload(port : str, arduino_dir : str = "C:\\Program Files (x86)\\Arduino", u
     arduino_bin_full_path = os.path.join(arduino_dir, arduino_bin)
     if not os.path.isfile(arduino_bin_full_path):
         arduino_dir = user_select_dir()
+        arduino_bin_full_path = os.path.join(arduino_dir, arduino_bin)
 
-    os.environ["path"] = os.pathsep.join([os.environ["path"], arduino_dir])
     cur_dir = os.path.dirname(__file__)
     src_path = os.path.abspath(os.path.join(cur_dir, "arduino_keyboard_src", "arduino_keyboard_src.ino"))
-    upload_command = f"{arduino_bin} --board arduino:avr:leonardo --port {port} --upload {src_path}"
+    upload_command = f"{arduino_bin_full_path} --board arduino:avr:leonardo --port {port} --upload {src_path}"
 
     ret_code = os.system(upload_command)
     return True if ret_code == 0 else False
