@@ -2,7 +2,7 @@ import os
 import time
 from ctypes import Structure, c_byte, c_ubyte, c_uint16
 
-from PySide6.QtWidgets import QApplication, QFileDialog, QMainWindow
+from PySide6.QtWidgets import QApplication, QFileDialog
 from win32api import GetCursorPos
 from serial import Serial
 from serial.tools import list_ports
@@ -10,7 +10,7 @@ from serial.tools import list_ports
 from input_abs import *
 from arduino_define import *
 
-def get_port_list(name = "USB 직렬 장치") -> list:
+def get_port_list(name : str = "USB 직렬 장치") -> list:
     find_port_list = list_ports.comports()
     port_list = list()
     for port in find_port_list:
@@ -54,7 +54,7 @@ class ArduinoUtil(AbsInput):
     def __del__(self):
         self.serial.close()
 
-    def key(self, key_code : int):
+    def key(self, key_code : int, ):
         self.key_press(key_code)
         self.key_release(key_code)
 
