@@ -54,23 +54,18 @@ class ArduinoUtil(AbsInput):
     def __del__(self):
         self.serial.close()
 
-    def key(self, key_code : int, ):
-        self.key_press(key_code)
-        self.key_release(key_code)
-
-    def key_press(self, key_code : int):
+    def key(self, key_code : int, key_status : int) -> int:
         header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_KEY_DATA)
         data = KeyData(arduino_key_map.get(key_code, key_code), ARDUINO_KEY_PRESS)
 
         data = bytes(header) + bytes(data)
-        self.serial.write(data)
+        return self.serial.write(data)
+
+    def key_press(self, key_code : int) -> None:
+        self.key(key_code, ARDUINO_KEY_PRESS)
 
     def key_release(self, key_code : int):
-        header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_KEY_DATA)
-        data = KeyData(arduino_key_map.get(key_code, key_code), ARDUINO_KEY_RELEASE)
-
-        data = bytes(header) + bytes(data)
-        self.serial.write(data)
+        self.key(key_code, ARDUINO_KEY_RELEASE)
 
     def string(self, s : str):
         for c in s:
@@ -113,11 +108,11 @@ class ArduinoUtil(AbsInput):
         return move_data
 
 
-    def move(self, x : int , y : int, relative : bool):
+    def move(self, x : int, y : int, relative : bool):
         data = self.make_move_data(x, y, relative)
         self.serial.write(data)
 
-    def btn(self, button_code : int , button_status : int):
+    def btn(self, button_code : int, button_status : int):
         header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_MOUSE_BUTTON)
         data = MouseButtonData(button_code, button_status)
 
