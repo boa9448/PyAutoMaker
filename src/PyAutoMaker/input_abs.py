@@ -66,9 +66,9 @@ class AbsInput(metaclass = ABCMeta):
         pass
 
     @abstractmethod
-    def move(self, x : int , y : int, relative : bool):
+    def move(self, x : int, y : int, relative : bool):
         pass
 
     @abstractmethod
-    def btn(self, button_code : int , button_status : int):
+    def btn(self, button_code : int, button_status : int):
         pass
