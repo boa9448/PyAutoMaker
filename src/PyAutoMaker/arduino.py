@@ -10,12 +10,16 @@ from serial.tools import list_ports
 from input_abs import *
 from arduino_define import *
 
-def get_port_list(name : str = "USB 직렬 장치") -> list:
+def get_port_list(name : str or list = ["USB 직렬 장치", "Leonardo"]) -> list:
     find_port_list = list_ports.comports()
     port_list = list()
+    if type(name) == str:
+        name_list = [name]
+    else:
+        name_list = name
+
     for port in find_port_list:
-        if name in port.description:
-            port_list.append(port.device)
+        port_list = [port.device for name in name_list if name in port.description]
 
     return port_list
 
@@ -39,7 +43,7 @@ def upload(port : str, arduino_dir : str = "C:\\Program Files (x86)\\Arduino", u
 
     cur_dir = os.path.dirname(__file__)
     src_path = os.path.abspath(os.path.join(cur_dir, "arduino_keyboard_src", "arduino_keyboard_src.ino"))
-    upload_command = f"{arduino_bin_full_path} --board arduino:avr:leonardo --port {port} --upload {src_path}"
+    upload_command = f"\"{arduino_bin_full_path}\" --board arduino:avr:leonardo --port {port} --upload {src_path}"
 
     ret_code = os.system(upload_command)
     return True if ret_code == 0 else False
@@ -56,7 +60,7 @@ class ArduinoUtil(AbsInput):
 
     def key(self, key_code : int, key_status : int) -> int:
         header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_KEY_DATA)
-        data = KeyData(arduino_key_map.get(key_code, key_code), ARDUINO_KEY_PRESS)
+        data = KeyData(arduino_key_map.get(key_code, key_code), key_status)
 
         data = bytes(header) + bytes(data)
         return self.serial.write(data)
