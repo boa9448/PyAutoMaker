@@ -1,6 +1,6 @@
 import os
 import time
-from ctypes import Structure, c_byte, c_ubyte, c_uint16
+from threading import Thread, Event
 
 from PySide6.QtWidgets import QApplication, QFileDialog
 from win32api import GetCursorPos
@@ -47,6 +47,29 @@ def upload(port : str, arduino_dir : str = "C:\\Program Files (x86)\\Arduino", u
 
     ret_code = os.system(upload_command)
     return True if ret_code == 0 else False
+
+class DebugThread(Thread):
+    def __init__(self, serial : Serial):
+        super().__init__()
+        self.exit_event = Event()
+        self.serial = serial
+
+    def __del__(self):
+        pass
+
+    def run(self) -> None:
+        while self.exit_event.is_set() == False:
+            if self.serial.inWaiting() > 0:
+                data = self.serial.read(self.serial.in_waiting)
+                data = data.decode("ascii")
+                print(data)
+
+    def exit(self) -> None:
+        self.exit_event.set()
+
+    def join(self) -> bool:
+        self.exit()
+        return super().join()
 
 class ArduinoUtil(AbsInput):
     MOVE_STEP = 100
