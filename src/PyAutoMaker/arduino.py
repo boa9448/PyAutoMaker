@@ -73,7 +73,8 @@ class ArduinoUtil(AbsInput):
 
     def string(self, s : str):
         for c in s:
-            self.key(ord(c))
+            self.key_press(ord(c))
+            self.key_release(ord(c))
             time.sleep(0.03)
 
     def make_move_data(self, x : int , y : int, relative : bool) -> bytes:
