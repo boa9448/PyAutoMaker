@@ -2,7 +2,7 @@
 #include "Mouse.h"
 
 //디버깅용 출력이 필요하다면 주석해제
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 #define CMD_START_SIGN '#'
 #define CMD_OPCODE_KEY_DATA 1
@@ -87,8 +87,9 @@ void loop()
             
         #ifdef DEBUG_MODE
             sprintf(szTemp, "key_code : %d, key_status : %d", recvKeyData.key_code, recvKeyData.key_status);
-            Serial.write(strlen(szTemp));
+            //Serial.write(strlen(szTemp));
             Serial.print(szTemp);
+            Serial.println();
         #endif
         }
         else if(header.opcode == CMD_OPCODE_MOUSE_BUTTON)
@@ -99,8 +100,9 @@ void loop()
             
         #ifdef DEBUG_MODE
             sprintf(szTemp, "button_code : %d, button_status : %d", recvMouseButtonData.button_code, recvMouseButtonData.button_status);
-            Serial.write(strlen(szTemp));
+            //Serial.write(strlen(szTemp));
             Serial.print(szTemp);
+            Serial.println();
         #endif
         }
         else if(header.opcode == CMD_OPCODE_MOUSE_MOVE)
@@ -110,9 +112,10 @@ void loop()
             //Mouse.move(100, 100, 0);
             
         #ifdef DEBUG_MODE
-            sprintf(szTemp, "x : %d, y : %d", recvMouseMoveData.x, recvMouseMoveData.y);
-            Serial.write(strlen(szTemp));
+            sprintf(szTemp, "arduino recv x : %d, y : %d", recvMouseMoveData.x, recvMouseMoveData.y);
+            //Serial.write(strlen(szTemp));
             Serial.print(szTemp);
+            Serial.println();
         #endif
         }
     }
