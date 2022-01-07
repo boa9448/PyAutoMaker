@@ -27,13 +27,12 @@ class BITMAPINFOHEADER(Structure):
     ]
 
 
-def screenshotEx(strWndName = win32con.NULL, start = (0, 0), end = (0, 0)):
-    if strWndName != win32con.NULL:
-        hTargetWnd = win32gui.FindWindow(win32con.NULL, strWndName)
-    else:
-        hTargetWnd = win32con.NULL
+def screenshotEx(window_name = None, start = (0, 0), end = (0, 0)):
+    target_window = win32con.NULL
+    if window_name:
+        target_window = win32gui.FindWindow(win32con.NULL, window_name)
         
-    if hTargetWnd == win32con.NULL:
+    if target_window == win32con.NULL:
         width = end[0] - start[0]
         height = end[1] - start[1]
 
@@ -45,13 +44,13 @@ def screenshotEx(strWndName = win32con.NULL, start = (0, 0), end = (0, 0)):
         height = end[1] - start[1]
 
         if width == 0 and height == 0:
-            wndRect = win32gui.GetClientRect(hTargetWnd)
+            wndRect = win32gui.GetClientRect(target_window)
             width = wndRect[2] - wndRect[0]
             height = wndRect[3] - wndRect[1]
 
         
     
-    targetDC = win32gui.GetDC(hTargetWnd)
+    targetDC = win32gui.GetDC(target_window)
     compatibleDC = win32gui.CreateCompatibleDC(targetDC)
 
     win32gui.SetStretchBltMode(compatibleDC, win32con.COLORONCOLOR)
