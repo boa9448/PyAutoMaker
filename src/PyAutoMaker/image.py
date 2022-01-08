@@ -101,8 +101,6 @@ class imageUtil:
         self._ImageSearchEx_All.restype = wintypes.INT
 
         self._ClearImageMap = self.dll["ClearImageMap"]
-        self._ClearImageMap.argtypes = (None, )
-        self._ClearImageMap.restype = None
 
         self._ImageSearchEx_Raw = self.dll["ImageSearchEx_Raw"]
         self._ImageSearchEx_Raw.argtypes = (POINTER(IMAGE), POINTER(IMAGE), POINTER(wintypes.RECT), wintypes.DWORD)
@@ -147,7 +145,7 @@ def imageSearchEx(src : np.ndarray, temp : np.ndarray, except_color : tuple = (2
     return searcher.imageSearchEx(src, temp, except_color, find_all)
 
 
-def cv2_imread(img_path : str, flag : int) -> np.ndarray:
+def cv2_imread(img_path : str, flag : int = cv2.IMREAD_UNCHANGED) -> np.ndarray:
     try:
         data = np.fromfile(img_path, np.uint8)
         img = cv2.imdecode(data, flag)
