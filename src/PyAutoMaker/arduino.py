@@ -2,13 +2,13 @@ import os
 import time
 from threading import Thread, Event
 
-from PySide6.QtWidgets import QApplication, QFileDialog
 from win32api import GetCursorPos
 from serial import Serial
 from serial.tools import list_ports
 
 from input_abs import *
 from arduino_define import *
+from utils import user_select_dir
 
 def get_port_list(name : str or list = ["USB 직렬 장치", "Leonardo"]) -> list:
     find_port_list = list_ports.comports()
@@ -22,17 +22,6 @@ def get_port_list(name : str or list = ["USB 직렬 장치", "Leonardo"]) -> lis
         port_list = [port.device for name in name_list if name in port.description]
 
     return port_list
-
-def user_select_dir() -> str:
-    app = QApplication()
-    window = QFileDialog()
-    window.setFileMode(QFileDialog.Directory)
-    
-    select_folder = None
-    if window.exec():
-        select_folder = window.selectedFiles()[0]
-
-    return select_folder
 
 def upload(port : str, arduino_dir : str = "C:\\Program Files (x86)\\Arduino", use_debug : bool = True) -> bool:
     arduino_bin = "arduino_debug.exe" if use_debug else "arduino.exe"
