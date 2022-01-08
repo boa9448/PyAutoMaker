@@ -56,7 +56,9 @@ class Maple:
             screen_shot = self.screen_shot()
 
         left, top, right, bottom = image.imageSearchEx(screen_shot, self.map_char_img, (255, 0, 0), False)
-        center_x, center_y = right - left, bottom - top
+        width, height = right - left, bottom - top
+        center_x = left + int(width / 2)
+        center_y = top + int(height / 2)
 
         return center_x, center_y
         
