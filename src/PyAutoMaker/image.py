@@ -1,15 +1,15 @@
+import os
+from ctypes import wintypes
+from ctypes import windll
+from ctypes import *
+
 import numpy as np
 import cv2
-import time
+
 import win32api
 import win32con
 import win32gui
 import win32ui
-import os
-import sys
-from ctypes import wintypes
-from ctypes import windll
-from ctypes import *
 
 class BITMAPINFOHEADER(Structure):
     _fields_ = [
@@ -27,28 +27,20 @@ class BITMAPINFOHEADER(Structure):
     ]
 
 
-def screenshotEx(window_name = None, start = (0, 0), end = (0, 0)):
+def screenshotEx(window_name : str = None
+                , rect : tuple = None) -> np.ndarray:
     target_window = win32con.NULL
+
     if window_name:
         target_window = win32gui.FindWindow(win32con.NULL, window_name)
-        
-    if target_window == win32con.NULL:
-        width = end[0] - start[0]
-        height = end[1] - start[1]
-
-        if width == 0 and height == 0:
-            width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
-            height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
+        left, top, right, bottom = rect or win32gui.GetClientRect(target_window)
+        width = right - left
+        height = bottom - top
     else:
-        width = end[0] - start[0]
-        height = end[1] - start[1]
+        left, top = 0, 0
+        width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
+        height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
 
-        if width == 0 and height == 0:
-            wndRect = win32gui.GetClientRect(target_window)
-            width = wndRect[2] - wndRect[0]
-            height = wndRect[3] - wndRect[1]
-
-        
     
     targetDC = win32gui.GetDC(target_window)
     compatibleDC = win32gui.CreateCompatibleDC(targetDC)
@@ -74,7 +66,7 @@ def screenshotEx(window_name = None, start = (0, 0), end = (0, 0)):
     bitmapInfo.biBitCount = bitCount
 
     win32gui.SelectObject(compatibleDC, bitmap.handle)
-    win32gui.BitBlt(compatibleDC, 0, 0, width, height, targetDC, *start, win32con.SRCCOPY)
+    win32gui.BitBlt(compatibleDC, 0, 0, width, height, targetDC, left, top, win32con.SRCCOPY)
 
     windll.gdi32.GetDIBits(compatibleDC, bitmap.handle, 0, height,
                      cast(img.ctypes.data, POINTER(c_byte)),
