@@ -1,6 +1,5 @@
 import os
 from ctypes import wintypes
-from ctypes import windll
 from ctypes import *
 
 import numpy as np
@@ -10,6 +9,8 @@ import win32api
 import win32con
 import win32gui
 import win32ui
+
+import utils
 
 class BITMAPINFOHEADER(Structure):
     _fields_ = [
@@ -79,140 +80,140 @@ def screenshotEx(window_name : str = None
 
     return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR) if img.shape[-1] == 4 else img
 
-class IMAGE_DATA(Structure):
-    _fields_ = [("lpData", c_ulonglong)
-                , ("nHeight", c_uint)
-                , ("nWidth", c_uint)
-                , ("nChannel", c_uint)]
+class IMAGE(Structure):
+    _pack_ = 16
+    _fields_ = [("data", POINTER(c_ubyte))
+                , ("width", c_int32)
+                , ("height", c_int32)
+                , ("channels", c_int32)]
 
 
 class imageUtil:
     def __init__(self):
-        self.dll = windll.LoadLibrary(os.environ["DLL_FOLDER"] + os.sep + "PythonWrapper.dll")
-        self.__ImageSearchEx = self.dll["ImageSearchEx"]
-        self.__ImageSearchEx.argtypes = (POINTER(IMAGE_DATA), POINTER(IMAGE_DATA), POINTER(wintypes.RECT), c_ulong)
-        self.__ImageSearchEx.restype = (c_int)
+        dll_path = os.path.join(os.environ["DLL_FOLDER"], "ImageDLL.dll")
+        self.dll = windll.LoadLibrary(dll_path)
+        self._ImageSearchEx = self.dll["ImageSearchEx"]
+        self._ImageSearchEx.argtypes = (wintypes.LPCWSTR, wintypes.LPCWSTR, POINTER(wintypes.RECT), wintypes.DWORD)
+        self._ImageSearchEx.restype = wintypes.INT
 
-        self.__ImageSearchExAll = self.dll["ImageSearchExAll"]
-        self.__ImageSearchExAll.argtypes = (POINTER(IMAGE_DATA), POINTER(IMAGE_DATA), POINTER(wintypes.RECT), c_uint, c_ulong)
-        self.__ImageSearchExAll.restype = (c_int)
+        self._ImageSearchEx_All = self.dll["ImageSearchEx_All"]
+        self._ImageSearchEx_All.argtypes = (wintypes.LPCWSTR, wintypes.LPCWSTR, POINTER(wintypes.RECT), wintypes.UINT, wintypes.DWORD)
+        self._ImageSearchEx_All.restype = wintypes.INT
 
-        self.__imageSearchEx_Parallel = self.dll["ImageSearchEx_Parallel"]
-        self.__imageSearchEx_Parallel.argtypes = (POINTER(IMAGE_DATA), POINTER(IMAGE_DATA), POINTER(wintypes.RECT), c_ulong)
-        self.__imageSearchEx_Parallel.restype = (c_int)
-        
-        self.__imageSearchExAll_Parallel = self.dll["ImageSearchExAll_Parallel"]
-        self.__imageSearchExAll_Parallel.argtypes = (POINTER(IMAGE_DATA), POINTER(IMAGE_DATA), POINTER(wintypes.RECT), c_uint, c_ulong)
-        self.__imageSearchExAll_Parallel.restype = (c_int)
+        self._ClearImageMap = self.dll["ClearImageMap"]
+        self._ClearImageMap.argtypes = (None, )
+        self._ClearImageMap.restype = None
 
-        self.__imageSearchEx_Parallel_ = self.dll["ImageSearchEx_Parallel_"]
-        self.__imageSearchEx_Parallel_.argtypes = (POINTER(IMAGE_DATA), POINTER(IMAGE_DATA), POINTER(wintypes.RECT), c_float, c_ulong)
-        self.__imageSearchEx_Parallel_.restype = (c_int)
-        
-        self.__imageSearchExAll_Parallel_ = self.dll["ImageSearchExAll_Parallel_"]
-        self.__imageSearchExAll_Parallel_.argtypes = (POINTER(IMAGE_DATA), POINTER(IMAGE_DATA), POINTER(wintypes.RECT), c_uint, c_float, c_ulong)
-        self.__imageSearchExAll_Parallel_.restype = (c_int)
+        self._ImageSearchEx_Raw = self.dll["ImageSearchEx_Raw"]
+        self._ImageSearchEx_Raw.argtypes = (POINTER(IMAGE), POINTER(IMAGE), POINTER(wintypes.RECT), wintypes.DWORD)
+        self._ImageSearchEx_Raw.restype = wintypes.INT
+
+        self._ImageSearchEx_Raw = self.dll["ImageSearchEx_Raw_All"]
+        self._ImageSearchEx_Raw.argtypes = (POINTER(IMAGE), POINTER(IMAGE), POINTER(wintypes.RECT), wintypes.UINT, wintypes.DWORD)
+        self._ImageSearchEx_Raw.restype = wintypes.INT
+
+        self.find_rects_len = 100
+        self.find_rects = (wintypes.RECT * self.find_rects_len)()
 
     def __del__(self):
+
         FreeLibrary = windll.kernel32["FreeLibrary"]
         FreeLibrary.argtypes = (wintypes.HMODULE,)
-        FreeLibrary.restype = (c_int)
+        FreeLibrary.restype = c_int32
         FreeLibrary(self.dll._handle)
 
-    def imageSearchEx(self, src, temp, exceptColor = (255, 0, 0), findAll = True):
-        src = cv2.cvtColor(src, cv2.COLOR_BGRA2BGR) if src.shape[-1] == 4 else src
-        temp = cv2.cvtColor(temp, cv2.COLOR_BGRA2BGR) if temp.shape[-1] == 4 else temp
+    def imageSearchEx(self, src : np.ndarray, temp : np.ndarray, except_color : tuple = (255, 0, 0), find_all : bool = True) -> list:
+        src_data = IMAGE(src.ctypes.data_as(POINTER(c_ubyte)), *src.shape)
+        temp_data = IMAGE(temp.ctypes.data_as(POINTER(c_ubyte)), *temp.shape)
 
-
-        src_data = IMAGE_DATA(src.ctypes.data, *src.shape)
-        temp_data = IMAGE_DATA(temp.ctypes.data, *temp.shape)
-
-        if findAll:
-            resultLen = 100
-            result = (wintypes.RECT * resultLen)()
-
-            ret = self.__ImageSearchExAll(byref(src_data), byref(temp_data), cast(result, POINTER(wintypes.RECT)), resultLen, exceptColor)
-            if ret <= 0:
-                return []
-
-            result = [(result[idx].left, result[idx].top, result[idx].right, result[idx].bottom) for idx in range(ret)]
-
+        if find_all:
+            ret = self._ImageSearchEx_All(byref(src_data), byref(temp_data)
+                                        , cast(self.find_rects, POINTER(wintypes.RECT)), self.find_rects_len, win32api.RGB(*except_color))
+            
+            self.find_rects = self.find_rects
+            result = [(self.find_rects[idx].left, self.find_rects[idx].top
+                        , self.find_rects[idx].right, self.find_rects[idx].bottom) for idx in range(ret)]
         else:
-            result = wintypes.RECT()
-            ret = self.__ImageSearchEx(byref(src_data), byref(temp_data), byref(result), exceptColor)
-            if ret <= 0:
-                return []
+            find_rect = wintypes.RECT()
+            ret = self._ImageSearchEx(byref(src_data), byref(temp_data), byref(find_rect), win32api.RGB(*except_color))
 
-            result = [result.left, result.top, result.right, result.bottom]
-
-        return result
-
-    def imageSearchEx_Parallel(self, src, temp, exceptColor = (255, 0, 0), rate = float(0.95)):
-        src = cv2.cvtColor(src, cv2.COLOR_BGRA2BGR) if src.shape[-1] == 4 else src
-        temp = cv2.cvtColor(temp, cv2.COLOR_BGRA2BGR) if temp.shape[-1] == 4 else temp
-
-        src_data = IMAGE_DATA(src.ctypes.data, *src.shape)
-        temp_data = IMAGE_DATA(temp.ctypes.data, *temp.shape)
-
-        resultLen = 100
-        result = (wintypes.RECT * resultLen)()
-        ret = self.__imageSearchExAll_Parallel_(byref(src_data), byref(temp_data), cast(result, POINTER(wintypes.RECT)), resultLen, rate, exceptColor)
-        result = [(result[idx].left, result[idx].top, result[idx].right, result[idx].bottom) for idx in range(ret)]
+            result = [find_rect.left, find_rect.top, find_rect.right, find_rect.bottom]
 
         return result
 
 searcher = imageUtil()
 
-def imread(strFilePath, flags = cv2.IMREAD_UNCHANGED):
-    data = np.fromfile(strFilePath, np.uint8)
-    img = cv2.imdecode(data, flags)
-    return img
+def imageSearchEx(src : np.ndarray, temp : np.ndarray, except_color : tuple = (255, 0, 0), find_all : bool = True) -> list:
+    return searcher.imageSearchEx(src, temp, except_color, find_all)
 
-def imageSearchEx(src, temp, exceptColor = (255, 0, 0)):
-    return searcher.imageSearchEx(src, temp, win32api.RGB(*exceptColor))
 
-def imageSearchEx_Parallel(src, temp, exceptColor = (255, 0, 0), rate = float(0)):
-    return searcher.imageSearchEx_Parallel(src, temp, win32api.RGB(*exceptColor), rate)
+def cv2_imread(img_path : str, flag : int) -> np.ndarray:
+    try:
+        data = np.fromfile(img_path, np.uint8)
+        img = cv2.imdecode(data, flag)
+        img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR) if img.shape[-1] == 4 else img
 
-def templateMatching(src, temp, thresh):
-    size = temp.shape
+        return img
+    except Exception as e:
+        return None
 
-    res = cv2.matchTemplate(src, temp, cv2.TM_CCOEFF_NORMED)
-    loc = np.where( res >= thresh)
-    result = []
-    for pt in zip(*loc[::-1]):
-        #result.append([pt[0], pt[1], pt[0] + w, pt[1] + h])
-        result.append([pt[0], pt[1], pt[0] + size[1], pt[1] + size[0]])
+def cv2_imreads(img_folder_path : str, flag : int = cv2.IMREAD_UNCHANGED) -> dict:
+    img_paths = utils.get_image_file_list(os.path.join(img_folder_path, "**", "*.*"))
 
-    return result
+    img_dict = dict()
+    for img_path in img_paths:
+        name = img_path.split(os.path.sep)[-1]
+        img = cv2_imread(img_path, flag)
+        if img is not None:
+            img_dict[name] = img
 
-def templateMatchingEx(src, temp, thresh, exceptColor):
-    #h, w, _ = temp.shape
-    size = temp.shape
+    return img_dict
+
+
+def template_match(src : np.ndarray, temp : np.ndarray
+                , thresh : float = 1.0, except_color : tuple or None = None) -> list:
+    """
+    src : 3채널 대상이 되는 이미지
+    temp : 3채널 찾을 이미지
+    thresh : 일치율(임계값)
+    except_color : 예외 색상
+    """
     
-    upper = exceptColor[::-1]
-    lower = upper
+    mask = ...
+    if except_color:
+        mask = cv2.inRange(temp, except_color, except_color)
+        mask = cv2.bitwise_not(mask)
+        mask = cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
+        mask = cv2.bitwise_and(temp.copy(), mask)
 
-    mask = cv2.inRange(temp, lower, upper)
-    mask = cv2.bitwise_not(mask)
+    
+    result = cv2.matchTemplate(src, temp, cv2.TM_CCORR_NORMED, mask = mask)
+    loc = np.where(result >= thresh)
 
-    res = cv2.matchTemplate(src,temp,cv2.TM_CCOEFF_NORMED, mask = mask)
-    loc = np.where( res >= thresh)
-    result = []
-    for pt in zip(*loc[::-1]):
-        #result.append([pt[0], pt[1], pt[0] + w, pt[1] + h])
-        result.append([pt[0], pt[1], pt[0] + size[1], pt[1] + size[0]])
+    h, w, c = temp.shape
+    rects = [(left, top, left + w, top + h) for left, top in zip(*loc[::-1])]
 
-    return result
+    return rects
 
+def template_matchs(src : np.ndarray, temps : list
+                , thresh : float or list = 1.0, except_color : tuple or None = None):
+    """
+    src : 3채널 대상이 되는 이미지
+    temps : 3채널 찾을 이미지 리스트
+    thresh : 일치율(임계값) 또는 각 temp 이미지별 일치율 리스트
+    except_color : 예외 색상
 
-def extractMask(img, lower, upper):
-    img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR) if img.shape[2] == 4 else img
+    리턴값 : 각 temp이미지별 찾은 위치의 리스트
+    list[list[tuple[int, int, int, int]]]
+    """
+    
 
-    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    img_mask = cv2.inRange(img_hsv, lower, upper)
+    if type(thresh) == float:
+        thresh = [thresh for idx in range(len(temps))]
 
-    return img_mask
+    results = [template_match(src, temp, t, except_color) for temp, t in zip(temps, thresh)]
+
+    return results
 
 
 if __name__ == "__main__":
