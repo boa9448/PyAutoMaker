@@ -1,9 +1,19 @@
+import unittest
+
 import env
 import PyAutoMaker as pam
 
-print(pam.KEY_LEFT_CTRL)
+class TestClassDDModule(unittest.TestCase):
+    def setUp(self) -> None:
+        self.dd = pam.DDUtil()
+        return super().setUp()
 
-dd = pam.DDUtil()
-dd.move(0, 0, False)
-dd.key(ord('A'))
-dd.key(pam.KEY_LEFT_CTRL)
+    def test_key(self) -> None:
+        self.dd.key(ord("A"), pam.KEY_STATUS_PRESS)
+        self.dd.key(ord("A"), pam.KEY_STATUS_RELEASE)
+
+    def test_move(self) -> None:
+        self.dd.move(0, 0, False)
+
+if __name__ == "__main__":
+    unittest.main()
