@@ -1,8 +1,8 @@
 PyAutoMaker
 ========
-자동화를 위한 파이썬 패키지
+자동화를 위한 파이썬 패키지  
+개발중인 버전이며 내보낸 API는 언제든지 변경될 수 있습니다  
 
-개발중인 버전이라 내보낸 API는 언제든지 변경될 수 있습니다
 
 
 설치방법
@@ -20,21 +20,48 @@ PyAutoMaker
 
 
 사용방법
-========
+========  
+스크린샷을 찍는 방법  
+
+
+```
+import cv2
+
+import PyAutoMaker as pam
+
+img = pam.screenshotEx()
+cv2.imshow("screenshot", img)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```  
+
+특정 이름을 가진 창의 스크린샷을 찍는 방법
+```
+import cv2
+
+import PyAutoMaker as pam
+
+img = pam.screenshotEx("MapleStory")
+cv2.imshow("screenshot", img)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
 
 화면에서 이미지서치를 사용하는 방법  
 
-    import cv2
+```
+import cv2
 
-    import PyAutoMaker as pam
+import PyAutoMaker as pam
 
-    src = pam.screenshotEx()
-    temp = cv2.imread("temp.png")
-    result = pam.imageSearchEx(src, temp)
+src = pam.screenshotEx()
+temp = cv2.imread("temp.png")
+result = pam.imageSearchEx(src, temp)
 
-    for left, top, right, bottom in result:
-        cv2.rectangle(src, (left, top), (right, bottom), (0, 255, 0), 2)
+for left, top, right, bottom in result:
+    cv2.rectangle(src, (left, top), (right, bottom), (0, 255, 0), 2)
 
-    cv2.imshow("view", src)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+cv2.imshow("view", src)
+cv2.waitKey()
+cv2.destroyAllWindows()
+```
