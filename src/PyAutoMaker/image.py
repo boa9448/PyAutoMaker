@@ -106,9 +106,9 @@ class imageUtil:
         self._ImageSearchEx_Raw.argtypes = (POINTER(IMAGE), POINTER(IMAGE), POINTER(wintypes.RECT), wintypes.DWORD)
         self._ImageSearchEx_Raw.restype = wintypes.INT
 
-        self._ImageSearchEx_Raw = self.dll["ImageSearchEx_Raw_All"]
-        self._ImageSearchEx_Raw.argtypes = (POINTER(IMAGE), POINTER(IMAGE), POINTER(wintypes.RECT), wintypes.UINT, wintypes.DWORD)
-        self._ImageSearchEx_Raw.restype = wintypes.INT
+        self.ImageSearchEx_Raw_All = self.dll["ImageSearchEx_Raw_All"]
+        self.ImageSearchEx_Raw_All.argtypes = (POINTER(IMAGE), POINTER(IMAGE), POINTER(wintypes.RECT), wintypes.UINT, wintypes.DWORD)
+        self.ImageSearchEx_Raw_All.restype = wintypes.INT
 
         self.find_rects_len = 100
         self.find_rects = (wintypes.RECT * self.find_rects_len)()
@@ -125,15 +125,15 @@ class imageUtil:
         temp_data = IMAGE(temp.ctypes.data_as(POINTER(c_ubyte)), *temp.shape)
 
         if find_all:
-            ret = self._ImageSearchEx_All(byref(src_data), byref(temp_data)
-                                        , cast(self.find_rects, POINTER(wintypes.RECT)), self.find_rects_len, win32api.RGB(*except_color))
+            ret = self.ImageSearchEx_Raw_All(byref(src_data), byref(temp_data)
+                                        , cast(pointer(self.find_rects), POINTER(wintypes.RECT)), self.find_rects_len, win32api.RGB(*except_color))
             
             self.find_rects = self.find_rects
             result = [(self.find_rects[idx].left, self.find_rects[idx].top
                         , self.find_rects[idx].right, self.find_rects[idx].bottom) for idx in range(ret)]
         else:
             find_rect = wintypes.RECT()
-            ret = self._ImageSearchEx(byref(src_data), byref(temp_data), byref(find_rect), win32api.RGB(*except_color))
+            ret = self._ImageSearchEx_Raw(byref(src_data), byref(temp_data), byref(find_rect), win32api.RGB(*except_color))
 
             result = [find_rect.left, find_rect.top, find_rect.right, find_rect.bottom]
 
