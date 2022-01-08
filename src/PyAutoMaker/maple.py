@@ -11,7 +11,7 @@ def time_check(func) -> Callable:
     def wrapper(*args, **kwargs):
         start = time.time()
         result = func(*args, **kwargs)
-        print(f"{func.__name__} : {time.time() - start}")
+        print(f"{func.__name__} : {time.time() - start:.2f}")
         return result
 
     return wrapper
@@ -51,6 +51,7 @@ class Maple:
         left, top, right, bottom = self.find_map_coordinates(screen_shot)
         return screen_shot[top : bottom, left : right]
 
+    @time_check
     def find_char_coordinates(self, screen_shot : np.ndarray or None = None) -> tuple:
         if screen_shot is None:
             screen_shot = self.screen_shot()
