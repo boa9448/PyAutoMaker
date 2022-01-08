@@ -15,4 +15,5 @@ from .image import *
 from .arduino import *
 from .class_dd import *
 from .input import *
+from .maple import *
 #from .tensor import *
