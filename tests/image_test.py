@@ -1,35 +1,43 @@
 import os
+import unittest
 
 import cv2
 import numpy as np
 
-cur_dir = os.path.dirname(__file__)
-img_dir = os.path.join(cur_dir, "imgs")
-src_path = os.path.join(img_dir, "src.png")
-temp_path = os.path.join(img_dir, "temp2.png")
+import env
+import PyAutoMaker as pam
 
-def image_search(src : np.ndarray, temp : np.ndarray, thresh : float, except_color : tuple or None = None):
-    mask = ...
-    if except_color:
-        mask = cv2.inRange(temp, except_color, except_color)
-        mask = cv2.bitwise_not(mask)
-        mask = cv2.bitwise_and(temp.copy(), cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR))
+class TestImageModule(unittest.TestCase):
+    def setUp(self) -> None:
+        self.cur_dir = os.path.dirname(__file__)
+        self.img_dir = os.path.join(self.cur_dir, "imgs")
+        self.src_path = os.path.join(self.img_dir, "src.png")
+        self.temp_path = os.path.join(self.img_dir, "temp.png")
+        self.temp_mask_path = os.path.join(self.img_dir, "temp2.png")
 
-    result = cv2.matchTemplate(src, temp, cv2.TM_CCORR_NORMED, mask = mask)
-    loc = np.where( result >= thresh)
+        return super().setUp()
 
-    h, w, c = temp.shape
-    rect_list = list()
-    for pt in zip(*loc[::-1]):
-        start_x, start_y = pt
-        end_x, end_y = start_x + w, start_y + h
-        rect_list.append((start_x, start_y, end_x, end_y))
+    def test_imread(self) -> None:
+        src = pam.cv2_imread(self.src_path)
+        temp = pam.cv2_imread(self.temp_path)
 
-    return rect_list
+        self.assertEqual(type(src), np.ndarray)
+        self.assertEqual(type(temp), np.ndarray)
+
+    def test_image_search(self) -> None:
+        src = pam.cv2_imread(self.src_path)
+        temp = pam.cv2_imread(self.temp_path)
+
+        result = pam.imageSearchEx(src, temp)
+        self.assertTrue(result)
+
+    def test_image_search_mask(self) -> None:
+        src = pam.cv2_imread(self.src_path)
+        temp = pam.cv2_imread(self.temp_mask_path)
+
+        result = pam.imageSearchEx(src, temp)
+        self.assertTrue(result)
 
 
 if __name__ == "__main__":
-    src = cv2.imread(src_path, cv2.IMREAD_UNCHANGED)
-    temp = cv2.imread(temp_path, cv2.IMREAD_UNCHANGED)
-    rects = image_search(src, temp, 1.0, (0, 0, 255))
-    print(rects)
+    unittest.main()
