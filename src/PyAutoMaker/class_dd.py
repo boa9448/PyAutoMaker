@@ -46,7 +46,7 @@ class DDUtil(AbsInput):
         self._DD_whl.restype = c_int32
 
         self._DD_todc = self._hModule["DD_todc"] #ddCode = DD_todc(가상키코드) 가상키코드 -> DD코드로 변경
-        self._DD_todc.argtypes = (c_int32)
+        self._DD_todc.argtypes = (c_int32,)
         self._DD_todc.restype = c_int32
 
         self._DD_str = self._hModule["DD_str"] #DD_str(입력할 문자열) 문자열은 영어 숫자로만 입력, 대부분의 경우 사용x
@@ -88,6 +88,12 @@ class DDUtil(AbsInput):
 
     def key(self, key_code: int, key_status: int):
         self._DD_key(self._DD_todc(key_code), key_status)
+
+    def key_press(self, key_code : int) -> None:
+        self.key(key_code, DD_KEY_PRESS)
+
+    def key_release(self, key_code : int) -> None:
+        self.key(key_code, DD_KEY_RELEASE)
 
     def move(self, x: int, y: int, relative: bool):
         if not relative:
