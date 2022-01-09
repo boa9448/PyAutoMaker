@@ -2,7 +2,7 @@ import time
 
 import env
 import PyAutoMaker as pam
-
+"""
 port_name = pam.get_port_list()[0]
 pam.upload(port_name, "D:\\Program Files (x86)\\Arduino")
 
@@ -13,4 +13,8 @@ input_.btn(pam.BUTTON_LEFT, pam.BUTTON_STATUS_PRESS)
 input_.btn(pam.BUTTON_LEFT, pam.BUTTON_STATUS_RELEASE)
 
 input_.key(pam.KEY_LEFT_ARROW, pam.KEY_STATUS_PRESS)
-input_.key(pam.KEY_LEFT_ARROW, pam.KEY_STATUS_RELEASE)
+input_.key(pam.KEY_LEFT_ARROW, pam.KEY_STATUS_RELEASE)"""
+
+recorder = pam.Recorder()
+data = recorder.record()
+print(data)
