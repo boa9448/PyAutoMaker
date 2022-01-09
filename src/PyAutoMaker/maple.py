@@ -28,6 +28,9 @@ class Maple:
         self.map_left_top_img = self.imgs["maple_map_start_mask.png"]
         self.map_right_bottom_img = self.imgs["maple_map_end_mask.png"]
 
+        self.minimap_left_top = tuple()
+        self.minimap_right_bottm = tuple()
+
     def __dell__(self):
         pass
 
@@ -37,11 +40,17 @@ class Maple:
 
     @time_check
     def find_map_coordinates(self, screen_shot : np.ndarray or None = None) -> tuple:
+        if self.minimap_left_top and self.minimap_right_bottm:
+            return (*self.minimap_left_top, *self.minimap_right_bottm)
+
         if screen_shot is None:
             screen_shot = self.screen_shot()
 
         left, top = image.imageSearchEx(screen_shot, self.map_left_top_img, (255, 0, 0), False)[:2]
         right, bottom = image.imageSearchEx(screen_shot, self.map_right_bottom_img, (255, 0, 0), False)[2:]
+        
+        self.minimap_left_top = (left, top)
+        self.minimap_right_bottm = (right, bottom)
 
         return left, top, right, bottom
 
@@ -49,14 +58,18 @@ class Maple:
     def get_map_img(self) -> np.ndarray:
         screen_shot = self.screen_shot()
         left, top, right, bottom = self.find_map_coordinates(screen_shot)
-        return screen_shot[top : bottom, left : right]
+        return screen_shot[top : bottom, left : right].copy()
 
     @time_check
     def find_char_coordinates(self, screen_shot : np.ndarray or None = None) -> tuple:
         if screen_shot is None:
-            screen_shot = self.screen_shot()
+            screen_shot = self.get_map_img()
 
-        left, top, right, bottom = image.imageSearchEx(screen_shot, self.map_char_img, (255, 0, 0), False)
+        result = image.imageSearchEx(screen_shot, self.map_char_img, (255, 0, 0), False)
+        if not result:
+            return tuple()
+
+        left, top, right, bottom = result
         width, height = right - left, bottom - top
         center_x = left + int(width / 2)
         center_y = top + int(height / 2)
