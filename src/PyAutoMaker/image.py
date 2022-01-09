@@ -134,7 +134,9 @@ class imageUtil:
         else:
             find_rect = wintypes.RECT()
             ret = self._ImageSearchEx_Raw(byref(src_data), byref(temp_data), byref(find_rect), win32api.RGB(*except_color))
-
+            if ret <= 0:
+                return list()
+                
             result = [find_rect.left, find_rect.top, find_rect.right, find_rect.bottom]
 
         return result
