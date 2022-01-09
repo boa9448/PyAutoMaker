@@ -15,6 +15,7 @@ input_.btn(pam.BUTTON_LEFT, pam.BUTTON_STATUS_RELEASE)
 input_.key(pam.KEY_LEFT_ARROW, pam.KEY_STATUS_PRESS)
 input_.key(pam.KEY_LEFT_ARROW, pam.KEY_STATUS_RELEASE)"""
 
-recorder = pam.Recorder()
+recorder = pam.Recorder(pam.DDUtil())
 data = recorder.record()
 print(data)
+recorder.play(data)
