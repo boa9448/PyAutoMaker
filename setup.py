@@ -21,7 +21,7 @@ setuptools.setup(
     package_dir = {"": "src"},
     packages = setuptools.find_packages(where="src"),
     package_data = { "PyAutoMaker" : ["dlls/*"] },
-    install_requires = ["psutil", "keyboard", "mouse", "pywin32", "opencv-contrib-python", "pySerial", "PySide6"],
+    install_requires = ["psutil", "keyboard", "mouse", "pywin32", "opencv-contrib-python", "pySerial", "PySide6", "qt-material"],
 
     python_requires = '>=3.6',
 )
