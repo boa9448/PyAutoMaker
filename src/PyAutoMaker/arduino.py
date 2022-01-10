@@ -19,7 +19,7 @@ def get_port_list(name : str or list = ["USB 직렬 장치", "Leonardo"]) -> lis
         name_list = name
 
     for port in find_port_list:
-        port_list = [port.device for name in name_list if name in port.description]
+        port_list += [port.device for name_ in name_list if name_ in port.description]
 
     return port_list
 

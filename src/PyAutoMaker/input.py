@@ -69,30 +69,30 @@ class Recorder:
         for key_event in key_events:
             key_event : keyboard.KeyboardEvent = key_event
             new_key_events.append(KeyboardEventEx(key_event.event_type
-                                                    , key_event.scan_code
-                                                    , key_event.name
-                                                    , key_event.time
-                                                    , key_event.device
-                                                    , key_event.modifiers
-                                                    , key_event.is_keypad))
+                                                , key_event.scan_code
+                                                , key_event.name
+                                                , key_event.time
+                                                , key_event.device
+                                                , key_event.modifiers
+                                                , key_event.is_keypad))
 
         return new_key_events
 
     def key_record(self, stop_key : str = "esc") -> list:
         self.key_record_start()
-        keyboard.wait(stop_key)
+        keyboard.wait(stop_key, True)
         key_events = self.key_record_stop()
 
         new_key_events = list()
         for key_event in key_events:
             key_event : keyboard.KeyboardEvent = key_event
             new_key_events.append(KeyboardEventEx(key_event.event_type
-                                                    , key_event.scan_code
-                                                    , key_event.name
-                                                    , key_event.time
-                                                    , key_event.device
-                                                    , key_event.modifiers
-                                                    , key_event.is_keypad))
+                                                , key_event.scan_code
+                                                , key_event.name
+                                                , key_event.time
+                                                , key_event.device
+                                                , key_event.modifiers
+                                                , key_event.is_keypad))
 
         return new_key_events
 
@@ -115,7 +115,7 @@ class Recorder:
     def record(self, stop_key : str = "esc") -> list:
         self.key_record_start()
         self.mouse_record_start()
-        keyboard.wait(stop_key)
+        keyboard.wait(stop_key, True)
         mouse_events = self.mouse_record_stop()
         key_events = self.key_record_stop()
 
@@ -134,7 +134,6 @@ class Recorder:
             if isinstance(event, KeyboardEventEx):
                 if event.event_type == keyboard.KEY_DOWN:
                     self.backend.key_press(event.vk_code)
-                    print(event.vk_code)
                 else:
                     self.backend.key_release(event.vk_code)
             else:
