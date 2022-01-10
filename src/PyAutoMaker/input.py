@@ -1,5 +1,6 @@
 import random
 import time
+from threading import Event
 from queue import Queue
 
 import keyboard
@@ -122,10 +123,13 @@ class Recorder:
         events = sorted(key_events + mouse_events, key = lambda x : x.time)
         return events
 
-    def play(self, events : list, rand_delay_range : tuple = (0.03, 0.05)) -> None:
+    def play(self, events : list, rand_delay_range : tuple = (0.03, 0.05), stop_event : Event = None) -> None:
 
         last_time = None
         for event in events:
+            if stop_event is not None and stop_event.is_set():
+                break
+
             if last_time is not None:
                 rand_delay = random.uniform(*rand_delay_range)
                 time.sleep(event.time - last_time + rand_delay)
@@ -141,9 +145,10 @@ class Recorder:
                     self.backend.move(event.x, event.y, False)
                 elif isinstance(event, mouse.ButtonEvent):
                     if event.event_type == mouse.UP:
-                        self.backend.btn(BUTTON_LEFT if mouse.LEFT else BUTTON_RIGHT, BUTTON_STATUS_RELEASE)
+                        button = BUTTON_LEFT if mouse.LEFT == event.button else BUTTON_RIGHT
+                        self.backend.btn(button, BUTTON_STATUS_RELEASE)
                     elif event.event_type == mouse.DOWN:
-                        self.backend.btn(BUTTON_LEFT if mouse.LEFT else BUTTON_RIGHT, BUTTON_STATUS_PRESS)
+                        self.backend.btn(button, BUTTON_STATUS_PRESS)
         
 
 if __name__ == "__main__":
