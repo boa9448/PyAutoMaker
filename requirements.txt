@@ -5,3 +5,4 @@ pywin32
 opencv-contrib-python
 pySerial
 PySide6
+qt-material
