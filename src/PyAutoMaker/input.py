@@ -110,7 +110,7 @@ class Recorder:
 
     def mouse_record(self, stop_key : str = "esc") -> list:
         self.mouse_record_start()
-        keyboard.wait(stop_key)
+        keyboard.wait(stop_key, True)
         return self.mouse_record_stop()
 
     def record(self, stop_key : str = "esc") -> list:
@@ -144,8 +144,8 @@ class Recorder:
                 if isinstance(event, mouse.MoveEvent):
                     self.backend.move(event.x, event.y, False)
                 elif isinstance(event, mouse.ButtonEvent):
+                    button = BUTTON_LEFT if mouse.LEFT == event.button else BUTTON_RIGHT
                     if event.event_type == mouse.UP:
-                        button = BUTTON_LEFT if mouse.LEFT == event.button else BUTTON_RIGHT
                         self.backend.btn(button, BUTTON_STATUS_RELEASE)
                     elif event.event_type == mouse.DOWN:
                         self.backend.btn(button, BUTTON_STATUS_PRESS)
