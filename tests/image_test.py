@@ -8,14 +8,14 @@ import env
 import PyAutoMaker as pam
 
 class TestImageModule(unittest.TestCase):
-    def setUp(self) -> None:
+    def __init__(self, methodName: str = ...) -> None:
         self.cur_dir = os.path.dirname(__file__)
         self.img_dir = os.path.join(self.cur_dir, "imgs")
         self.src_path = os.path.join(self.img_dir, "src.png")
         self.temp_path = os.path.join(self.img_dir, "temp.png")
         self.temp_mask_path = os.path.join(self.img_dir, "temp2.png")
 
-        return super().setUp()
+        super().__init__(methodName=methodName)
 
     def test_imread(self) -> None:
         src = pam.cv2_imread(self.src_path)
