@@ -65,23 +65,19 @@ class ArduinoUtil(AbsInput):
 
     def __init__(self, port : str, baudrate : int):
         self.serial = Serial(port = port, baudrate = baudrate)
+        self.key_header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_KEY_DATA)
+        self.mouse_header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_MOUSE_MOVE)
         time.sleep(2)
 
     def __del__(self):
         self.serial.close()
 
     def key(self, key_code : int, key_status : int) -> int:
-        header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_KEY_DATA)
+        key_status = ARDUINO_KEY_PRESS if key_status == KEY_STATUS_PRESS else ARDUINO_KEY_RELEASE
         data = KeyData(arduino_key_map.get(key_code, key_code), key_status)
 
-        data = bytes(header) + bytes(data)
+        data = bytes(self.key_header) + bytes(data)
         return self.serial.write(data)
-
-    def key_press(self, key_code : int) -> None:
-        self.key(key_code, ARDUINO_KEY_PRESS)
-
-    def key_release(self, key_code : int):
-        self.key(key_code, ARDUINO_KEY_RELEASE)
 
     def string(self, s : str):
         for c in s:
@@ -90,7 +86,6 @@ class ArduinoUtil(AbsInput):
             time.sleep(0.03)
 
     def make_move_data(self, x : int , y : int, relative : bool) -> bytes:
-        header = CmdHeader(CMD_START_SIGN, CMD_OPCODE_MOUSE_MOVE)
         cur_x, cur_y = GetCursorPos()
 
         if relative:
@@ -109,18 +104,18 @@ class ArduinoUtil(AbsInput):
         sign = 1 if diff_x < 0 else -1
         for _ in range(count_x):
             data = MouseMoveData(sign * self.MOVE_STEP, 0)
-            move_data += bytes(header) + bytes(data)
+            move_data += bytes(self.mouse_header) + bytes(data)
 
         data = MouseMoveData(sign * remainder_x, 0)
-        move_data += bytes(header) + bytes(data)
+        move_data += bytes(self.mouse_header) + bytes(data)
 
         sign = 1 if diff_y < 0 else -1
         for _ in range(count_y):
             data = MouseMoveData(0, sign * self.MOVE_STEP)
-            move_data += bytes(header) + bytes(data)
+            move_data += bytes(self.mouse_header) + bytes(data)
 
         data = MouseMoveData(0, sign * remainder_y)
-        move_data += bytes(header) + bytes(data)
+        move_data += bytes(self.mouse_header) + bytes(data)
 
         return move_data
 

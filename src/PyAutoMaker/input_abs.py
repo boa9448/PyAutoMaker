@@ -65,6 +65,12 @@ class AbsInput(metaclass = ABCMeta):
     def key(self, key_code : int, key_status : int):
         pass
 
+    def key_press(self, key_code : int):
+        self.key(key_code, KEY_STATUS_PRESS)
+
+    def key_release(self, key_code : int):
+        self.key(key_code, KEY_STATUS_RELEASE)
+
     @abstractmethod
     def move(self, x : int, y : int, relative : bool):
         pass

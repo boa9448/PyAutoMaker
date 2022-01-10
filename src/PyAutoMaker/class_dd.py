@@ -3,25 +3,15 @@ from ctypes import c_char_p, wintypes, windll, c_int32
 
 from input_abs import *
 
-DD_KEY_PRESS = 1 #키다운
-DD_KEY_RELEASE = 2 #키업
-#btn함수가 사용하는 클릭 코드
-DD_MOUSE_LDOWN = 1 #왼쪽 마우스 버튼 다운
-DD_MOUSE_LUP = 2 #왼쪽 마우스 버튼 업
-DD_MOUSE_RDOWN = 4 #오른쪽 다운
-DD_MOUSE_RUP = 8 #오른쪽 업
-
 class DDUtil(AbsInput):
-    #key, keyEx함수가 사용하는 키 상태 코드
-    KEY_DOWN = DD_KEY_PRESS #키다운
-    KEY_UP = DD_KEY_RELEASE #키업
+    DD_KEY_PRESS = 1 #키다운
+    DD_KEY_RELEASE = 2 #키업
     #btn함수가 사용하는 클릭 코드
-    MOUSE_LDOWN = DD_MOUSE_LDOWN #왼쪽 마우스 버튼 다운
-    MOUSE_LUP = DD_MOUSE_LUP #왼쪽 마우스 버튼 업
-    MOUSE_RDOWN = DD_MOUSE_RDOWN #오른쪽 다운
-    MOUSE_RUP = DD_MOUSE_RUP #오른쪽 업
+    DD_MOUSE_LDOWN = 1 #왼쪽 마우스 버튼 다운
+    DD_MOUSE_LUP = 2 #왼쪽 마우스 버튼 업
+    DD_MOUSE_RDOWN = 4 #오른쪽 다운
+    DD_MOUSE_RUP = 8 #오른쪽 업
 
-    #일부 함수들은 인자들을 강제할것
     def __init__(self, strDLLPath = os.path.join(os.environ["DLL_FOLDER"], "DD64.dll")):
         #dd 라이브러리를 불러옴
         self._hModule = windll.LoadLibrary(strDLLPath)
@@ -66,34 +56,23 @@ class DDUtil(AbsInput):
         #hModule = dd의 dll객체, hModule._handle = dll의 핸들
         FreeLibrary(self._hModule._handle)
 
-    def DD_keyEx(self, vkeyCode, keyState):
-        #todc함수는 가상키 코드를 드라이버에서 사용하는 코드로 변환함
-        #가상 키코드 -> dd코드로 변환
-        #DD_key함수 호출
-        self._DD_key(self._DD_todc(vkeyCode), keyState)
-
     def btn(self, button_code: int, button_status: int):
         if button_code == BUTTON_LEFT and button_status == BUTTON_STATUS_PRESS:
-            self._DD_btn(DD_MOUSE_LDOWN)
+            self._DD_btn(self.DD_MOUSE_LDOWN)
         elif button_code == BUTTON_LEFT and button_status == BUTTON_STATUS_RELEASE:
-            self._DD_btn(DD_MOUSE_LUP)
+            self._DD_btn(self.DD_MOUSE_LUP)
         elif button_code == BUTTON_RIGHT and button_status == BUTTON_STATUS_PRESS:
-            self._DD_btn(DD_MOUSE_RDOWN)
+            self._DD_btn(self.DD_MOUSE_RDOWN)
         elif button_code == BUTTON_RIGHT and button_status == BUTTON_STATUS_RELEASE:
-            self._DD_btn(DD_MOUSE_RUP)
+            self._DD_btn(self.DD_MOUSE_RUP)
         elif button_code == BUTTON_MIDDLE and button_status == BUTTON_STATUS_PRESS:
             pass
         elif button_code == BUTTON_MIDDLE and button_status == BUTTON_STATUS_RELEASE:
             pass
 
-    def key(self, key_code: int, key_status: int):
+    def key(self, key_code : int, key_status : int):
+        key_status = self.DD_KEY_PRESS if key_status == KEY_STATUS_PRESS else self.DD_KEY_RELEASE
         self._DD_key(self._DD_todc(key_code), key_status)
-
-    def key_press(self, key_code : int) -> None:
-        self.key(key_code, DD_KEY_PRESS)
-
-    def key_release(self, key_code : int) -> None:
-        self.key(key_code, DD_KEY_RELEASE)
 
     def move(self, x: int, y: int, relative: bool):
         if not relative:
