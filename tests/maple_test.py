@@ -7,10 +7,11 @@ import env
 import PyAutoMaker as pam
 
 class TestMapleModule(unittest.TestCase):
-    def setUp(self) -> None:
+    def __init__(self, methodName: str = ...) -> None:
         self.imgs_dir = env.test_imgs_dir
         self.maple = pam.Maple(self.imgs_dir)
-        return super().setUp()
+        
+        super().__init__(methodName=methodName)
 
     def test_minimap(self) -> None:
         minimap_img = self.maple.get_map_img()
