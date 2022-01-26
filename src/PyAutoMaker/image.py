@@ -28,8 +28,7 @@ class BITMAPINFOHEADER(Structure):
     ]
 
 
-def screenshotEx(window_name : str = None
-                , rect : tuple = None) -> np.ndarray:
+def screenshotEx(window_name : str = None, rect : tuple = None) -> np.ndarray:
     target_window = win32con.NULL
 
     if window_name:
