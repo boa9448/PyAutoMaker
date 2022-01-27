@@ -28,6 +28,55 @@ class BITMAPINFOHEADER(Structure):
     ]
 
 
+def screenshot(window_handle : int, rect : tuple = None, direct_view : bool = False) -> np.ndarray:
+    target_handle = win32gui.GetDesktopWindow() if direct_view else window_handle
+
+    left, top, right, bottom = rect or win32gui.GetClientRect(window_handle)
+    if direct_view:
+        left, top = win32gui.ClientToScreen(window_handle, (left, top))
+        right, bottom = win32gui.ClientToScreen(window_handle, (right, bottom))
+
+    width = right - left
+    height = bottom - top
+
+    targetDC = win32gui.GetDC(target_handle)
+    compatibleDC = win32gui.CreateCompatibleDC(targetDC)
+
+    win32gui.SetStretchBltMode(compatibleDC, win32con.COLORONCOLOR)
+
+    bitCount = win32ui.GetDeviceCaps(targetDC, win32con.BITSPIXEL)
+    img = np.zeros((height, width, 4 if bitCount == 32 else 3), np.uint8)
+
+    bitmap = win32gui.CreateCompatibleBitmap(targetDC, width, height)
+
+    bitmapInfo = BITMAPINFOHEADER()
+    bitmapInfo.biSize = sizeof(BITMAPINFOHEADER)
+    bitmapInfo.biWidth = width
+    bitmapInfo.biHeight = -height
+    bitmapInfo.biPlanes = 1
+    bitmapInfo.biCompression = win32con.BI_RGB
+    bitmapInfo.biSizeImage = 0
+    bitmapInfo.biXPelsPerMeter = 0
+    bitmapInfo.biYPelsPerMeter = 0
+    bitmapInfo.biClrUsed = 0
+    bitmapInfo.biClrImportant = 0
+    bitmapInfo.biBitCount = bitCount
+
+    win32gui.SelectObject(compatibleDC, bitmap.handle)
+    win32gui.BitBlt(compatibleDC, 0, 0, width, height, targetDC, left, top, win32con.SRCCOPY)
+
+    windll.gdi32.GetDIBits(compatibleDC, bitmap.handle, 0, height,
+                     cast(img.ctypes.data, POINTER(c_byte)),
+                     byref(bitmapInfo),
+                     win32con.DIB_RGB_COLORS)
+
+    win32gui.DeleteObject(bitmap)
+    win32gui.DeleteDC(compatibleDC)
+    win32gui.ReleaseDC(win32con.NULL, targetDC)
+
+    return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR) if img.shape[-1] == 4 else img
+    
+
 def screenshotEx(window_name : str = None, rect : tuple = None) -> np.ndarray:
     target_window = win32con.NULL
 
@@ -79,6 +128,7 @@ def screenshotEx(window_name : str = None, rect : tuple = None) -> np.ndarray:
 
     return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR) if img.shape[-1] == 4 else img
 
+
 class IMAGE(Structure):
     _pack_ = 16
     _fields_ = [("data", POINTER(c_ubyte))
@@ -113,7 +163,6 @@ class imageUtil:
         self.find_rects = (wintypes.RECT * self.find_rects_len)()
 
     def __del__(self):
-
         FreeLibrary = windll.kernel32["FreeLibrary"]
         FreeLibrary.argtypes = (wintypes.HMODULE,)
         FreeLibrary.restype = c_int32
