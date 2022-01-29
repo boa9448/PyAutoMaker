@@ -158,14 +158,9 @@ def imageSearchEx(src : np.ndarray, temp : np.ndarray, except_color : tuple = (2
 
 
 def cv2_imread(img_path : str, flag : int = cv2.IMREAD_UNCHANGED) -> np.ndarray:
-    try:
-        data = np.fromfile(img_path, np.uint8)
-        img = cv2.imdecode(data, flag)
-        img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR) if img.shape[-1] == 4 else img
-
-        return img
-    except Exception as e:
-        return None
+    data = np.fromfile(img_path, np.uint8)
+    img = cv2.imdecode(data, flag)
+    return img
 
 def cv2_imreads(img_folder_path : str, flag : int = cv2.IMREAD_UNCHANGED) -> dict:
     img_paths = utils.get_image_file_list(os.path.join(img_folder_path, "**", "*.*"))
