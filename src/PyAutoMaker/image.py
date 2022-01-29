@@ -10,7 +10,8 @@ import win32con
 import win32gui
 import win32ui
 
-import utils
+from . import utils
+from . import exception
 
 class BITMAPINFOHEADER(Structure):
     _fields_ = [
@@ -77,56 +78,16 @@ def screenshot(window_handle : int, rect : tuple = None, direct_view : bool = Fa
     return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR) if img.shape[-1] == 4 else img
     
 
-def screenshotEx(window_name : str = None, rect : tuple = None) -> np.ndarray:
-    target_window = win32con.NULL
+def desktop_screenshot(rect : tuple = None) -> np.ndarray:
+    desktop_window = win32gui.GetDesktopWindow()
+    return screenshot(desktop_window, rect)
 
-    if window_name:
-        target_window = win32gui.FindWindow(win32con.NULL, window_name)
-        left, top, right, bottom = rect or win32gui.GetClientRect(target_window)
-        width = right - left
-        height = bottom - top
-    else:
-        left, top = 0, 0
-        width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
-        height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
+def screenshotEx(window_name : str, rect : tuple = None) -> np.ndarray:
+    window = utils.get_window_handle(window_name)
+    if not window:
+        raise exception.HandleException("윈도우 핸들을 구하지 못했습니다")
 
-    
-    targetDC = win32gui.GetDC(target_window)
-    compatibleDC = win32gui.CreateCompatibleDC(targetDC)
-
-    win32gui.SetStretchBltMode(compatibleDC, win32con.COLORONCOLOR)
-
-    bitCount = win32ui.GetDeviceCaps(targetDC, win32con.BITSPIXEL)
-    img = np.zeros((height, width, 4 if bitCount == 32 else 3), np.uint8)
-
-    bitmap = win32gui.CreateCompatibleBitmap(targetDC, width, height)
-
-    bitmapInfo = BITMAPINFOHEADER()
-    bitmapInfo.biSize = sizeof(BITMAPINFOHEADER)
-    bitmapInfo.biWidth = width
-    bitmapInfo.biHeight = -height
-    bitmapInfo.biPlanes = 1
-    bitmapInfo.biCompression = win32con.BI_RGB
-    bitmapInfo.biSizeImage = 0
-    bitmapInfo.biXPelsPerMeter = 0
-    bitmapInfo.biYPelsPerMeter = 0
-    bitmapInfo.biClrUsed = 0
-    bitmapInfo.biClrImportant = 0
-    bitmapInfo.biBitCount = bitCount
-
-    win32gui.SelectObject(compatibleDC, bitmap.handle)
-    win32gui.BitBlt(compatibleDC, 0, 0, width, height, targetDC, left, top, win32con.SRCCOPY)
-
-    windll.gdi32.GetDIBits(compatibleDC, bitmap.handle, 0, height,
-                     cast(img.ctypes.data, POINTER(c_byte)),
-                     byref(bitmapInfo),
-                     win32con.DIB_RGB_COLORS)
-
-    win32gui.DeleteObject(bitmap)
-    win32gui.DeleteDC(compatibleDC)
-    win32gui.ReleaseDC(win32con.NULL, targetDC)
-
-    return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR) if img.shape[-1] == 4 else img
+    return screenshot(window[0], rect)
 
 
 class IMAGE(Structure):
