@@ -184,7 +184,7 @@ def template_match(src : np.ndarray, temp : np.ndarray
     except_color : 예외 색상
     """
     
-    mask = ...
+    mask = None
     if except_color:
         mask = cv2.inRange(temp, except_color, except_color)
         mask = cv2.bitwise_not(mask)
