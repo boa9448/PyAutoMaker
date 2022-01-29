@@ -124,10 +124,11 @@ class imageUtil:
         self.find_rects = (wintypes.RECT * self.find_rects_len)()
 
     def __del__(self):
-        FreeLibrary = windll.kernel32["FreeLibrary"]
+        pass
+        """FreeLibrary = windll.kernel32["FreeLibrary"]
         FreeLibrary.argtypes = (wintypes.HMODULE,)
         FreeLibrary.restype = c_int32
-        FreeLibrary(self.dll._handle)
+        FreeLibrary(self.dll._handle)"""
 
     def imageSearchEx(self, src : np.ndarray, temp : np.ndarray, except_color : tuple = (255, 0, 0), find_all : bool = True) -> list:
         src_data = IMAGE(src.ctypes.data_as(POINTER(c_ubyte)), *src.shape)
