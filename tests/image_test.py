@@ -1,6 +1,7 @@
 import os
 import unittest
 import subprocess
+import time
 
 import cv2
 import numpy as np
@@ -41,13 +42,16 @@ class TestImageModule(unittest.TestCase):
 
     def test_screenshot(self) -> None:
         notepad = subprocess.Popen(["notepad.exe"])
+        time.sleep(1)
         handle = pam.get_window_handle("제목 없음 - Windows 메모장")[0]
         src = pam.screenshot(handle, (0, 0, 100, 100), direct_view = True)
         self.assertEqual(type(src), np.ndarray)
-        """cv2.imshow("view", src)
-        cv2.waitKey()
-        cv2.destroyAllWindows()"""
 
+        src = pam.screenshotEx("제목 없음 - Windows 메모장")
+        self.assertEqual(type(src), np.ndarray)
+
+        src = pam.desktop_screenshot()
+        self.assertEqual(type(src), np.ndarray)
 
 if __name__ == "__main__":
     unittest.main()
