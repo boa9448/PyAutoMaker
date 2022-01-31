@@ -67,7 +67,8 @@ def screenshot(window_handle : int, rect : tuple = None, direct_view : bool = Fa
     win32gui.BitBlt(compatibleDC, 0, 0, width, height, targetDC, left, top, win32con.SRCCOPY)
 
     windll.gdi32.GetDIBits(compatibleDC, bitmap.handle, 0, height,
-                     cast(img.ctypes.data, POINTER(c_byte)),
+                     #cast(img.ctypes.data, POINTER(c_byte)),
+                     img.ctypes.data_as(POINTER(c_byte)),
                      byref(bitmapInfo),
                      win32con.DIB_RGB_COLORS)
 
@@ -88,7 +89,7 @@ def screenshotEx(window_name : str, rect : tuple = None) -> np.ndarray:
     if not window:
         raise exception.HandleException("윈도우 핸들을 구하지 못했습니다")
 
-    return screenshot(window[0], rect)
+    return screenshot(window, rect)
 
 
 class IMAGE(Structure):
@@ -117,9 +118,9 @@ class imageUtil:
         self._ImageSearchEx_Raw.argtypes = (POINTER(IMAGE), POINTER(IMAGE), POINTER(wintypes.RECT), wintypes.DWORD)
         self._ImageSearchEx_Raw.restype = wintypes.INT
 
-        self.ImageSearchEx_Raw_All = self.dll["ImageSearchEx_Raw_All"]
-        self.ImageSearchEx_Raw_All.argtypes = (POINTER(IMAGE), POINTER(IMAGE), POINTER(wintypes.RECT), wintypes.UINT, wintypes.DWORD)
-        self.ImageSearchEx_Raw_All.restype = wintypes.INT
+        self._ImageSearchEx_Raw_All = self.dll["ImageSearchEx_Raw_All"]
+        self._ImageSearchEx_Raw_All.argtypes = (POINTER(IMAGE), POINTER(IMAGE), POINTER(wintypes.RECT), wintypes.UINT, wintypes.DWORD)
+        self._ImageSearchEx_Raw_All.restype = wintypes.INT
 
         self.find_rects_len = 100
         self.find_rects = (wintypes.RECT * self.find_rects_len)()
@@ -136,7 +137,7 @@ class imageUtil:
         temp_data = IMAGE(temp.ctypes.data_as(POINTER(c_ubyte)), *temp.shape)
 
         if find_all:
-            ret = self.ImageSearchEx_Raw_All(byref(src_data), byref(temp_data)
+            ret = self._ImageSearchEx_Raw_All(byref(src_data), byref(temp_data)
                                         , cast(pointer(self.find_rects), POINTER(wintypes.RECT)), self.find_rects_len, win32api.RGB(*except_color))
             
             self.find_rects = self.find_rects
