@@ -82,8 +82,9 @@ def desktop_screenshot(rect : tuple = None) -> np.ndarray:
     desktop_window = win32gui.GetDesktopWindow()
     return screenshot(desktop_window, rect)
 
+
 def screenshotEx(window_name : str, rect : tuple = None) -> np.ndarray:
-    window = utils.get_window_handle(window_name)
+    window = win32gui.FindWindow(win32con.NULL, window_name)
     if not window:
         raise exception.HandleException("윈도우 핸들을 구하지 못했습니다")
 
