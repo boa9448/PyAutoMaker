@@ -1,14 +1,16 @@
 import os
 import time
-from threading import Thread, Event
+
 
 from win32api import GetCursorPos
 from serial import Serial
 from serial.tools import list_ports
 
+
 from input_abs import *
 from arduino_define import *
 from utils import user_select_dir
+
 
 def get_port_list(name : str or list = ["USB 직렬 장치", "Leonardo"]) -> list:
     find_port_list = list_ports.comports()
@@ -22,6 +24,7 @@ def get_port_list(name : str or list = ["USB 직렬 장치", "Leonardo"]) -> lis
         port_list += [port.device for name_ in name_list if name_ in port.description]
 
     return port_list
+
 
 def upload(port : str, arduino_dir : str = "C:\\Program Files (x86)\\Arduino", use_debug : bool = True) -> bool:
     arduino_bin = "arduino_debug.exe" if use_debug else "arduino.exe"
@@ -37,28 +40,6 @@ def upload(port : str, arduino_dir : str = "C:\\Program Files (x86)\\Arduino", u
     ret_code = os.system(upload_command)
     return True if ret_code == 0 else False
 
-class DebugThread(Thread):
-    def __init__(self, serial : Serial):
-        super().__init__()
-        self.exit_event = Event()
-        self.serial = serial
-
-    def __del__(self):
-        pass
-
-    def run(self) -> None:
-        while self.exit_event.is_set() == False:
-            if self.serial.inWaiting() > 0:
-                data = self.serial.read(self.serial.in_waiting)
-                data = data.decode("ascii")
-                print(data)
-
-    def exit(self) -> None:
-        self.exit_event.set()
-
-    def join(self) -> bool:
-        self.exit()
-        return super().join()
 
 class ArduinoUtil(AbsInput):
     MOVE_STEP = 100
