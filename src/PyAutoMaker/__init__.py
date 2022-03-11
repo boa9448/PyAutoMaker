@@ -10,13 +10,11 @@ os.environ["DLL_FOLDER"] = os.path.join(root_dir, "dlls")
 os.environ["DNN_DATA_FOLDER"] = os.path.join(root_dir, "models")
 os.environ["IMG_DATA_FOLDER"] = os.path.join(root_dir, "imgs")
 
-from .darknet import *
-from .image import *
-from .arduino import *
-from .class_dd import *
-from .input import *
-from .input_utils import *
-from .maple import *
-from .utils import *
-from .exception import *
-#from .tensor import *
+from PyAutoMaker import darknet
+from PyAutoMaker import image
+from PyAutoMaker import arduino
+from PyAutoMaker import class_dd
+from PyAutoMaker import input
+from PyAutoMaker import maple
+from PyAutoMaker import utils
+from PyAutoMaker import exception
