@@ -1,3 +1,14 @@
-class HandleException(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
+class PyAutoMakerBaseException(Exception):
+    pass
+
+
+class HandleException(PyAutoMakerBaseException):
+    pass
+
+
+class ArduinoBaseException(PyAutoMakerBaseException):
+    pass
+
+
+class ArduinoVersionException(ArduinoBaseException):
+    pass
