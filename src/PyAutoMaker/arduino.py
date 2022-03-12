@@ -1,6 +1,6 @@
 import os
 import time
-from ctypes import c_byte, c_ubyte, Structure, Union
+from ctypes import c_byte, c_ubyte, Structure, Union, sizeof
 
 
 from win32api import GetCursorPos
@@ -8,6 +8,7 @@ from serial import Serial
 from serial.tools import list_ports
 
 
+from exception import ArduinoBaseException, ArduinoVersionException
 from utils import user_select_dir
 from input_base import *
 
@@ -30,10 +31,18 @@ class MouseMoveData(Structure):
                 , ("y", c_byte)]
 
 
+class FirmwareInfoData(Structure):
+    _pack_ = 1
+    _fields_ = [("major", c_byte)
+                , ("minor", c_byte)
+                , ("patch", c_byte)]
+
+
 class ArduinoData(Union):
     _fields_ = [("key_data", KeyData)
                 , ("mouse_button_data", MouseButtonData)
-                , ("mouse_move_data", MouseMoveData)]
+                , ("mouse_move_data", MouseMoveData)
+                , ("firmware_info_data", FirmwareInfoData)]
 
 
 class ArduinoPacket(Structure):
@@ -41,10 +50,37 @@ class ArduinoPacket(Structure):
     _fields_ = [("opcode", c_ubyte)
                 , ("data", ArduinoData)]
 
+    def get_version(self) -> FirmwareInfoData:
+        if self.opcode != OPCODE_FIRMWARE_INFO_DATA:
+            raise ArduinoBaseException("잘못된 응답코드")
 
-CMD_OPCODE_KEY_DATA = 1
-CMD_OPCODE_MOUSE_BUTTON = 2
-CMD_OPCODE_MOUSE_MOVE = 3
+        return self.data.firmware_info_data
+
+    def key(self, key_code : int, key_status : int) -> None:
+        self.opcode = OPCODE_KEY_DATA
+        self.data.key_data.key_code = key_code
+        self.data.key_data.key_status = key_status
+
+    def btn(self, button_code : int, button_status : int) ->None:
+        self.opcode = OPCODE_MOUSE_BUTTON_DATA
+        self.data.mouse_button_data.button_code = button_code
+        self.data.mouse_button_data.button_status = button_status
+
+    def move(self, x : int, y : int) -> None:
+        self.opcode = OPCODE_MOUSE_MOVE_DATA
+        self.data.mouse_move_data.x = x
+        self.data.mouse_move_data.y = y
+
+
+VERSION_MAJOR = 0
+VERSION_MINOR = 1
+VERSION_PATCH = 0
+FIRMWARE_VERSION = (VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH)
+
+OPCODE_FIRMWARE_INFO_DATA = 1
+OPCODE_KEY_DATA = 2
+OPCODE_MOUSE_BUTTON_DATA = 3
+OPCODE_MOUSE_MOVE_DATA = 4
 
 ARDUINO_KEY_PRESS = 1
 ARDUINO_KEY_RELEASE = 2
@@ -55,7 +91,6 @@ ARDUINO_BUTTON_MIDDLE = 4
 
 ARDUINO_BUTTON_STATUS_PRESS = 1
 ARDUINO_BUTTON_STATUS_RELEASE = 2
-
 
 
 arduino_key_map = {KEY_LEFT_CTRL : 0x80
@@ -193,5 +228,122 @@ def upload(port : str = None, arduino_dir : str = "C:\\Program Files (x86)\\Ardu
     return True if ret_code == 0 else False
 
 
+class ArduinoUtil:
+    MOVE_STEP = 100
+
+    def __init__(self, port : str, baudrate : int):
+        self.serial = Serial(port = port, baudrate = baudrate)
+        self.check_firmware_version()
+
+    def __del__(self):
+        self.serial.close()
+
+    def check_firmware_version(self) -> bool:
+        timeout = 3.0
+        data_size = sizeof(ArduinoPacket)
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            size = self.serial.in_waiting
+            if not size:
+                time.sleep(0.1)
+                continue
+
+            packet : ArduinoPacket = ArduinoPacket.from_buffer_copy(self.serial.read(data_size))
+            version_info = packet.get_version()
+            if (version_info.major == VERSION_MAJOR
+                and version_info.minor == VERSION_MINOR
+                and version_info.patch == VERSION_PATCH):
+
+                return
+
+        raise ArduinoVersionException("버전이 일치하지 않거나 잘못된 펌웨어 입니다")
+
+    def key(self, key_code : int, key_status : int) -> bool:
+        key_status = ARDUINO_KEY_PRESS if key_status == KEY_STATUS_PRESS else ARDUINO_KEY_RELEASE
+        data = ArduinoPacket()
+        data.key(key_code, key_status)
+
+        data = bytes(data)
+        data_len = len(data)
+        return True if self.serial.write(data) == data_len else False
+
+    def key_press(self, key_code : int) -> bool:
+        return self.key(key_code, KEY_STATUS_PRESS)
+
+    def key_release(self, key_code : int) -> bool:
+        return self.key(key_code, KEY_STATUS_RELEASE)
+
+    def string(self, s : str):
+        for c in s:
+            self.key_press(ord(c))
+            time.sleep(0.03)
+            self.key_release(ord(c))
+            time.sleep(0.03)
+
+    def btn(self, button_code : int ,button_status : int) -> bool:
+        button_status = ARDUINO_BUTTON_STATUS_PRESS if button_status == BUTTON_STATUS_PRESS else ARDUINO_BUTTON_STATUS_RELEASE
+        data = ArduinoPacket()
+        data.btn(button_code, button_status)
+
+        data = bytes(data)
+        data_len = len(data)
+        return True if self.serial.write(data) == data_len else False
+
+    def btn_press(self, button_code : int) -> bool:
+        return self.btn(button_code, BUTTON_STATUS_PRESS)
+
+    def btn_release(self, button_code : int) -> bool:
+        return self.btn(button_code, BUTTON_STATUS_RELEASE)
+
+    def make_move_data(self, x : int , y : int, relative : bool) -> list[ArduinoPacket]:
+        cur_x, cur_y = GetCursorPos()
+
+        if relative:
+            x += cur_x
+            y += cur_y
+
+        diff_x, diff_y = cur_x - x, cur_y - y
+
+        count_x = abs(diff_x // self.MOVE_STEP)
+        remainder_x = abs(diff_x % self.MOVE_STEP)
+        count_y = abs(diff_y // self.MOVE_STEP)
+        remainder_y = abs(diff_y % self.MOVE_STEP)
+        move_packet_list = list()
+        
+        sign = 1 if diff_x < 0 else -1
+        for _ in range(count_x):
+            data = ArduinoPacket()
+            data.move(sign * self.MOVE_STEP, 0)
+            move_packet_list.append(data)
+
+
+        data = ArduinoPacket()
+        data.move(sign * remainder_x, 0)
+        move_packet_list.append(data)
+
+        sign = 1 if diff_y < 0 else -1
+        for _ in range(count_y):
+            data = ArduinoPacket()
+            data.move(0, sign * self.MOVE_STEP)
+            move_packet_list.append(data)
+
+        data = ArduinoPacket()
+        data.move(0, sign * remainder_y)
+        move_packet_list.append(data)
+
+        return move_packet_list
+
+    def move(self, x : int, y : int) -> bool:
+        packet_list = self.make_move_data(x, y, False)
+        for packet in packet_list:
+            data = bytes(packet)
+            data_len = len(data)
+
+            if self.serial.write(data) != data_len:
+                return False
+
+        return True
+
+    
 if __name__ == "__main__":
     pass
