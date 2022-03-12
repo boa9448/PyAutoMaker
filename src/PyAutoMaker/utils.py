@@ -3,8 +3,6 @@ from glob import glob
 from typing import Any
 
 import win32gui
-import win32ui
-from PySide6.QtWidgets import QApplication, QFileDialog
 
 def get_file_list(folder_path : str) -> list:
     return glob(folder_path, recursive = True)
@@ -24,7 +22,12 @@ def get_image_file_list(folder_path : str) -> list:
 
 
 def user_select_dir() -> str:
-    app = QApplication()
+    from PySide6.QtWidgets import QApplication, QFileDialog
+    if QApplication.instance():
+        app = QApplication.instance()
+    else:
+        app = QApplication()
+
     window = QFileDialog()
     window.setFileMode(QFileDialog.Directory)
     
