@@ -56,6 +56,9 @@ class ArduinoPacket(Structure):
 
         return self.data.firmware_info_data
 
+    def version(self) -> None:
+        self.opcode = OPCODE_FIRMWARE_INFO_DATA
+
     def key(self, key_code : int, key_status : int) -> None:
         self.opcode = OPCODE_KEY_DATA
         self.data.key_data.key_code = key_code
@@ -233,13 +236,26 @@ class ArduinoUtil:
 
     def __init__(self, port : str, baudrate : int):
         self.serial = Serial(port = port, baudrate = baudrate)
+        time.sleep(2)
         self.check_firmware_version()
 
     def __del__(self):
+        if self.serial.is_open:
+            self.serial.close()
+
+    def close(self) -> None:
         self.serial.close()
+
+    def get_version(self) -> None:
+        data = ArduinoPacket()
+        data.version()
+
+        self.serial.write(bytes(data))
 
     def check_firmware_version(self) -> bool:
         timeout = 3.0
+        self.get_version()
+        
         data_size = sizeof(ArduinoPacket)
         start_time = time.time()
         while time.time() - start_time < timeout:
@@ -346,4 +362,7 @@ class ArduinoUtil:
 
     
 if __name__ == "__main__":
-    pass
+    arduino = ArduinoUtil("COM8", 115200)
+    arduino.close()
+    arduino.key_press(65)
+    arduino.key_release(65)
