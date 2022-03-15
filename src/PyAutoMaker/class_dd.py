@@ -1,9 +1,9 @@
 import os
 from ctypes import c_char_p, wintypes, windll, c_int32
 
-from input_abs import *
+from input_base import *
 
-class DDUtil(AbsInput):
+class DDUtil:
     DD_KEY_PRESS = 1 #키다운
     DD_KEY_RELEASE = 2 #키업
     #btn함수가 사용하는 클릭 코드

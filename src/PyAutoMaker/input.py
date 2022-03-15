@@ -7,7 +7,7 @@ import mouse
 import win32api
 import win32con
 
-from input_abs import *
+from input_base import *
 from arduino import ArduinoUtil
 from class_dd import DDUtil
 
