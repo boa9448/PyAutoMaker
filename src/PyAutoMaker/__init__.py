@@ -1,14 +1,13 @@
 import sys
 import os
-from os.path import dirname
+from os.path import dirname, abspath
 
-root_dir = dirname(__file__)
+root_dir = abspath(dirname(__file__))
 
-sys.path.append(root_dir)
-os.environ["PATH"] += os.pathsep + os.path.join(root_dir, "dlls")
-os.environ["DLL_FOLDER"] = os.path.join(root_dir, "dlls")
-os.environ["DNN_DATA_FOLDER"] = os.path.join(root_dir, "models")
-os.environ["IMG_DATA_FOLDER"] = os.path.join(root_dir, "imgs")
+os.add_dll_directory(os.path.join(root_dir, "dlls"))
+dll_folder = os.path.join(root_dir, "dlls")
+dnn_data_folder = os.path.join(root_dir, "models")
+img_data_folder = os.path.join(root_dir, "imgs")
 
 from . import darknet
 from . import image
