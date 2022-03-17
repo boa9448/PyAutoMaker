@@ -16,7 +16,7 @@ DD_MOUSE_RUP = 8 #오른쪽 업
 
 class DDUtil:
 
-    def __init__(self, dll_path : str = os.path.join(os.environ["DLL_FOLDER"], "DD64.dll")):
+    def __init__(self, dll_path : str = "DD64.dll"):
         #dd 라이브러리를 불러옴
         self._hModule = windll.LoadLibrary(dll_path)
         self._DD_key = self._hModule["DD_key"] #DD_key(DD키코드, 키상태)

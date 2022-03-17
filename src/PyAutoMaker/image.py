@@ -10,6 +10,7 @@ import win32con
 import win32gui
 import win32ui
 
+from . import img_data_folder
 from . import utils
 from . import exception
 
@@ -102,7 +103,7 @@ class IMAGE(Structure):
 
 class imageUtil:
     def __init__(self):
-        dll_path = os.path.join(os.environ["DLL_FOLDER"], "ImageDLL.dll")
+        dll_path = "ImageDLL.dll"
         self.dll = windll.LoadLibrary(dll_path)
         self._ImageSearchEx = self.dll["ImageSearchEx"]
         self._ImageSearchEx.argtypes = (wintypes.LPCWSTR, wintypes.LPCWSTR, POINTER(wintypes.RECT), wintypes.DWORD)
