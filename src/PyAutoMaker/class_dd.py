@@ -1,7 +1,7 @@
 import os
 from ctypes import c_char_p, wintypes, windll, c_int32
 
-from input_base import *
+from .input_base import *
 
 class DDUtil:
     DD_KEY_PRESS = 1 #키다운

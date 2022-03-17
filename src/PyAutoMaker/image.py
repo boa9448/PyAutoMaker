@@ -10,8 +10,8 @@ import win32con
 import win32gui
 import win32ui
 
-import utils
-import exception
+from . import utils
+from . import exception
 
 class BITMAPINFOHEADER(Structure):
     _fields_ = [

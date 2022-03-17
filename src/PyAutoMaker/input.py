@@ -7,9 +7,9 @@ import mouse
 import win32api
 import win32con
 
-from input_base import *
-from arduino import ArduinoUtil
-from class_dd import DDUtil
+from .input_base import *
+from .arduino import ArduinoUtil
+from .class_dd import DDUtil
 
 class InputUtil:
     def __init__(self, backend : ArduinoUtil or DDUtil, args : tuple) -> None:

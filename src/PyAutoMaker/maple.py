@@ -5,7 +5,7 @@ from typing import Callable
 import cv2
 import numpy as np
 
-import image
+from . import image
 
 def time_check(func) -> Callable:
     def wrapper(*args, **kwargs):
