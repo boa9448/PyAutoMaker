@@ -8,7 +8,7 @@ import PyAutoMaker as pam
 
 class TestClassDDModule(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
-        self.dd = pam.DDUtil()
+        self.dd = pam.class_dd.DDUtil()
         super().__init__(methodName=methodName)
 
     def test_key(self) -> None:
