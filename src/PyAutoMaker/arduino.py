@@ -349,8 +349,8 @@ class ArduinoUtil:
 
         return move_packet_list
 
-    def move(self, x : int, y : int) -> bool:
-        packet_list = self.make_move_data(x, y, False)
+    def move(self, x : int, y : int, relative: bool) -> bool:
+        packet_list = self.make_move_data(x, y, relative)
         for packet in packet_list:
             data = bytes(packet)
             data_len = len(data)
