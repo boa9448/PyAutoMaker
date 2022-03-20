@@ -5,7 +5,7 @@ with open("README.md", "rt", encoding="utf-8") as fh:
 
 setuptools.setup(
     name = "PyAutoMaker",
-    version = "0.2.0",
+    version = "0.3.0",
     author = "WDW",
     author_email = "boa9448@naver.com",
     description = "자동화를 위한 패키지",
@@ -21,7 +21,7 @@ setuptools.setup(
     package_dir = {"": "src"},
     packages = setuptools.find_packages(where="src"),
     package_data = { "PyAutoMaker" : ["dlls/*"] },
-    install_requires = ["psutil", "keyboard", "mouse", "pywin32", "opencv-contrib-python", "pySerial", "PySide6", "qt-material"],
+    install_requires = ["psutil", "pywin32", "opencv-contrib-python", "pySerial", "PySide6", "qt-material"],
 
-    python_requires = '>=3.6',
+    python_requires = '>=3.7',
 )

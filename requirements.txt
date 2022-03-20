@@ -1,6 +1,4 @@
 psutil
-keyboard
-mouse
 pywin32
 opencv-contrib-python
 pySerial
