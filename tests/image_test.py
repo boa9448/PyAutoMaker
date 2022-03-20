@@ -47,6 +47,9 @@ class TestImageModule(unittest.TestCase):
         src = pam.image.screenshot(handle, (0, 0, 100, 100), direct_view = True)
         self.assertEqual(type(src), np.ndarray)
 
+        h, w, c = src.shape
+        self.assertTrue(h == 100 and w == 100)
+
         src = pam.image.screenshotEx("제목 없음 - Windows 메모장")
         self.assertEqual(type(src), np.ndarray)
 
