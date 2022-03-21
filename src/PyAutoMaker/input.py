@@ -1,12 +1,4 @@
-import random
-import time
-from threading import Event
-from queue import Queue
 from typing import Union
-
-import mouse
-import win32api
-import win32con
 
 from .input_base import *
 from .arduino import ArduinoUtil
