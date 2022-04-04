@@ -220,7 +220,7 @@ def upload(port : str = None, arduino_dir : str = "C:\\Program Files (x86)\\Ardu
     arduino_bin = "arduino_debug.exe" if use_debug else "arduino.exe"
     arduino_bin_full_path = os.path.join(arduino_dir, arduino_bin)
     if not os.path.isfile(arduino_bin_full_path):
-        arduino_dir = user_select_dir()
+        arduino_dir = user_select_dir("아두이노가 설치된 폴더를 선택해주세요")
         arduino_bin_full_path = os.path.join(arduino_dir, arduino_bin)
 
     cur_dir = os.path.dirname(__file__)

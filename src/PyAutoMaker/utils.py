@@ -21,7 +21,7 @@ def get_image_file_list(folder_path : str) -> list:
     return list(filter(ext_filter, get_file_list(folder_path)))
 
 
-def user_select_dir() -> str:
+def user_select_dir(window_title : str) -> str:
     from PySide6.QtWidgets import QApplication, QFileDialog
     if QApplication.instance():
         app = QApplication.instance()
@@ -30,8 +30,9 @@ def user_select_dir() -> str:
 
     window = QFileDialog()
     window.setFileMode(QFileDialog.Directory)
+    window.setWindowTitle(window_title)
     
-    select_folder = None
+    select_folder = ""
     if window.exec():
         select_folder = window.selectedFiles()[0]
 
