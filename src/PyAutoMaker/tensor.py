@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 import tensorflow as tf
-import tensorflow.keras
 
 
 tf.config.set_visible_devices ([], 'GPU')
@@ -9,7 +8,7 @@ class TeachableUtil:
     def __init__(self, modelPath, labelPath):
         # Disable scientific notation for clarity
         #np.set_printoptions(suppress=True)
-        self.model = tensorflow.keras.models.load_model(modelPath)
+        self.model = tf.keras.models.load_model(modelPath)
         self.data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
         self.names = []
         
