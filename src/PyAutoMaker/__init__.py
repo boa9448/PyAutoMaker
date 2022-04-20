@@ -14,6 +14,5 @@ from . import image
 from . import arduino
 from . import class_dd
 from . import input
-from . import maple
 from . import utils
 from . import exception
