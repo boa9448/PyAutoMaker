@@ -156,3 +156,17 @@ input_.move(100, 100, True)
 input_.btn_press(pam.input.BUTTON_LEFT)
 input_.btn_release(pam.input.BUTTON_LEFT)
 ```
+
+## opencv dnn darknet을 사용하는 방법  
+```
+import cv2
+
+import PyAutoMaker as pam
+
+
+img = pam.image.desktop_screenshot()
+detector = pam.darknet.DarknetUtil("your_model.cfg", "your_model.weights", (416, 416))
+
+results = detector.detect(desktop_screenshot, thresh = 0.85)
+print(results)
+```
