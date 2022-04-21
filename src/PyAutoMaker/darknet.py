@@ -3,10 +3,10 @@ import cv2
 
 class DarknetUtil:
     DARKNET_SCALE = 0.00392
-    def __init__(self, cfgPath, modelPath, netSize = (416, 416)):
-        self.net = cv2.dnn.readNetFromDarknet(cfgPath, modelPath)
-        self.width = netSize[0]
-        self.height = netSize[1]
+    def __init__(self, cfg_path : str, model_path : str, net_size : tuple = (416, 416)):
+        self.net = cv2.dnn.readNetFromDarknet(cfg_path, model_path)
+        self.width = net_size[0]
+        self.height = net_size[1]
 
     def __del__(self):
         pass
