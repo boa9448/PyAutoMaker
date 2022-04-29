@@ -132,10 +132,10 @@ import PyAutoMaker as pam
 #pam.arduino.upload()
 
 #아두이노 사용
-input_ = pam.input.InputUtil(pam.input.DDUtil, tuple())
+input_ = pam.input.InputUtil(pam.input.ArduinoUtil, (pam.arduino.user_select_port(), 115200))
 
 #또는 class dd사용
-#input_ = pam.input.InputUtil(pam.input., (pam.arduino.user_select_port(), 115200))
+#input_ = pam.input.InputUtil(pam.input.DDUtil, tuple())
 
 #A 입력
 input_.key_press(ord("A"))
