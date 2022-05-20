@@ -167,6 +167,6 @@ import PyAutoMaker as pam
 img = pam.image.desktop_screenshot()
 detector = pam.darknet.DarknetUtil("your_model.cfg", "your_model.weights", (416, 416))
 
-results = detector.detect(desktop_screenshot, thresh = 0.85)
+results = detector.detect(img, thresh = 0.85)
 print(results)
 ```
